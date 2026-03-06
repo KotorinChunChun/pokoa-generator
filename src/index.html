@@ -7,7 +7,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&family=Hachi+Maru+Pop&family=Kiwi+Maru:wght@500&family=Potta+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&family=Hachi+Maru+Pop&family=Kiwi+Maru:wght@500&family=Potta+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@700&family=Yomogi&family=Stick&family=M+PLUS+1p&family=M+PLUS+Rounded+1c&family=Sawarabi+Gothic&family=Sawarabi+Mincho&family=Kaisei+Tokumin&family=Shippori+Mincho&family=Dela+Gothic+One&family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         @font-face {
             font-family: 'pokoa';
@@ -67,8 +67,7 @@
             color: #ff69b4;
             font-size: 14px;
         }
-        .album-cover-generator input[type="text"],
-        .album-cover-generator select {
+        .album-cover-generator textarea {
             padding: 12px;
             font-size: 16px;
             border: 2px solid #ffb6c1;
@@ -76,21 +75,105 @@
             width: 100%;
             box-sizing: border-box;
             font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
         }
-        .album-cover-generator input[type="text"]:focus,
+        .album-cover-generator textarea:focus,
         .album-cover-generator select:focus {
             outline: none;
             border-color: #ff69b4;
             box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
         }
+        .control-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .control-row .input-group {
+            flex: 1;
+        }
+        .font-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #ff69b4;
+            margin-top: -8px;
+            cursor: pointer;
+        }
+        .size-selector {
+            display: flex;
+            gap: 5px;
+            background: #fff0f5;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid #ffb6c1;
+        }
+        .size-btn {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: #ff69b4;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .size-btn.active {
+            background: #ff69b4;
+            color: white;
+        }
+        #custom-bg-input {
+            display: none;
+        }
+        .file-upload-label {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #fecfef;
+            color: #d63384;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+            border: 1px dashed #ff69b4;
+        }
+        .toggle-option[data-mode="transparent"] {
+            border: 1px dashed #ffb6c1;
+            background: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%), 
+                        linear-gradient(45deg, #eee 25%, white 25%, white 75%, #eee 75%, #eee 100%);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 5px;
+            color: #333;
+        }
+        .toggle-option[data-mode="transparent"].active {
+            box-shadow: 0 0 0 2px #ff69b4;
+            color: #ff1493;
+        }
         .album-cover-generator #result {
             margin-top: 10px;
+            position: relative;
+        }
+        /* 透過時のチェッカーボード背景 */
+        .album-cover-generator #result.transparent-preview {
+            background-image:
+                linear-gradient(45deg, #ccc 25%, transparent 25%),
+                linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #ccc 75%),
+                linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #fff;
+            border-radius: 10px;
         }
         .album-cover-generator #result img {
             max-width: 100%;
             height: auto;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: block;
         }
         .button-group {
             display: flex;
@@ -107,6 +190,7 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 18px;
+            font-family: inherit;
             box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -123,6 +207,7 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 18px;
+            font-family: inherit;
             box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
             display: none;
@@ -135,12 +220,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            margin: 15px 0;
+            gap: 10px;
+            margin: 10px 0;
             user-select: none;
         }
         .toggle-options {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 5px;
             background-color: #fff0f5;
             border-radius: 25px;
@@ -148,14 +235,15 @@
             box-shadow: inset 0 2px 5px rgba(255, 182, 193, 0.5);
         }
         .toggle-option {
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 8px 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #ff69b4;
             cursor: pointer;
             border-radius: 20px;
             transition: all 0.3s ease;
             white-space: nowrap;
+            font-family: inherit;
         }
         .toggle-option.active {
             background-color: #ff69b4;
@@ -164,6 +252,32 @@
         }
         .toggle-option:hover:not(.active) {
             background-color: #ffe4e1;
+        }
+        .album-cover-generator select {
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 2px solid #ffb6c1;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            background: #fff;
+        }
+        .album-cover-generator select:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+        }
+        .credits-link {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ff69b4;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .credits-link:hover {
+            opacity: 0.7;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -176,36 +290,81 @@
             </div>
             <form id="album-cover-form">
                 <div class="input-group">
-                    <label for="input-text">テキスト</label>
-                    <input type="text" id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)" value="ぽこあジェネレーター">
+                    <label for="input-text">テキスト (改行で行が変わります)</label>
+                    <textarea id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)">ぽこあジェネレーター</textarea>
                 </div>
-                <div class="input-group">
-                    <label for="font-select">フォント</label>
-                    <select id="font-select">
-                        <option value="'pokoa'">ぽこぴあフォント (オリジナル)</option>
-                        <option value="'Kiwi Maru', serif">Kiwi Maru</option>
-                        <option value="'Potta One', cursive" selected>Potta One</option>
-                        <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
-                        <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
-                        <option value="'Darumadrop One', cursive">Darumadrop One</option>
-                        <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
-                    </select>
+                <div class="control-row">
+                    <div class="input-group">
+                        <label for="font-select">フォント</label>
+                        <select id="font-select">
+                            <optgroup label="おすすめ" id="optgroup-recommended">
+                                <option value="'pokoa'">ぽこぴあフォント (オリジナル)</option>
+                                <option value="'Potta One', cursive" selected>Potta One</option>
+                                <option value="'Kiwi Maru', serif">Kiwi Maru</option>
+                                <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
+                                <option value="'Yomogi', cursive">よもぎ (手書き風 / ふい字風)</option>
+                                <option value="'Stick', sans-serif">ステック (元気な手書き風)</option>
+                                <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
+                                <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
+                            </optgroup>
+                            <optgroup label="その他" id="optgroup-other" style="display: none;">
+                                <option value="'M PLUS 1p', sans-serif">M PLUS 1p</option>
+                                <option value="'M PLUS Rounded 1c', sans-serif">M PLUS Rounded 1c</option>
+                                <option value="'Sawarabi Gothic', sans-serif">さわらびゴシック</option>
+                                <option value="'Sawarabi Mincho', serif">さわらび明朝</option>
+                                <option value="'Kaisei Tokumin', serif">Kaisei Tokumin</option>
+                                <option value="'Shippori Mincho', serif">しっぽり明朝</option>
+                                <option value="'Dela Gothic One', cursive">Dela Gothic One</option>
+                                <option value="'DotGothic16', sans-serif">DotGothic16</option>
+                                <option value="'Darumadrop One', cursive">Darumadrop One</option>
+                            </optgroup>
+                        </select>
+                        <label class="font-toggle-wrapper">
+                            <input type="checkbox" id="font-all-toggle"> すべて表示
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label>サイズ</label>
+                        <div class="size-selector">
+                            <button type="button" class="size-btn" data-size="small">小さめ</button>
+                            <button type="button" class="size-btn active" data-size="medium">普通</button>
+                            <button type="button" class="size-btn" data-size="large">大きめ</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="toggle-container">
+                    <div style="font-weight: bold; color: #ff69b4; font-size: 13px; align-self: flex-start;">背景</div>
                     <div class="toggle-options">
                         <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
                         <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
                         <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
                         <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
+                        <div class="toggle-option" id="transparent-option" data-mode="transparent">透過</div>
+                        <div class="toggle-option" id="custom-option" data-mode="custom">画像UP</div>
                     </div>
+                    <input type="file" id="custom-bg-input" accept="image/*">
+                    <label for="custom-bg-input" class="file-upload-label" id="file-label" style="display: none;">ファイルを選択...</label>
                 </div>
                 <input type="hidden" id="version-mode" value="screenshot">
+                <input type="hidden" id="text-size" value="medium">
+                <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">形式</label>
+                    <div class="size-selector" id="format-selector">
+                        <button type="button" class="size-btn active" data-fmt="jpg">JPG</button>
+                        <button type="button" class="size-btn" data-fmt="png">PNG</button>
+                        <button type="button" class="size-btn" data-fmt="gif">GIF</button>
+                    </div>
+                    <input type="hidden" id="output-format" value="jpg">
+                </div>
                 <div class="button-group">
                     <button type="button" id="generate-button">生成</button>
                     <button type="button" id="download-button" style="display: none;">ダウンロード</button>
                 </div>
             </form>
         </div>
+        <a href="https://www.pocoapokemon.jp/ja/" target="_blank" rel="noopener noreferrer" class="credits-link">
+            [ぽこあポケモン (Pokoa Pokemon)]
+        </a>
     </div>
     <script>
         // 現在選択中のフォントを保持
@@ -257,6 +416,8 @@
  // Text wraps to new lines BEFORE the font shrinks — the font only reduces
  // if a single unbreakable word is too wide to fit on one line.
  const FONT_SIZE_START_PCT  = 0.16;
+ // サイズ倍率（小さめ・普通・大きめ）
+ const SIZE_MULTIPLIERS = { small: 0.7, medium: 1.0, large: 1.3 };
  // Maximum width a single line of text may occupy, as % of canvas width.
  // Words wrap to the next line before this limit is breached.
  const TEXT_MAX_WIDTH_PCT   = 0.78;
@@ -354,27 +515,11 @@
             return assignments;
         }
 
-        // 入力テキストをmaxLineW以内に収まる行に分割する
-        // 単語は分割しない——フォントサイズは単語が1行に収まらない場合のみ縮小する
+        // 改行のみで行分割（スペース分割なし）
         function buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing) {
-            ctx.font = `${fontSize}px ${currentFont}`;
-            const words = inputText.split(' ');
-            const lines = [];
-            let cur = '';
-            for (const word of words) {
-                const test      = cur ? cur + ' ' + word : word;
-                const testChars = test.split('');
-                const testW     = testChars.reduce((s, c) => s + ctx.measureText(c).width, 0)
-                                + extraSpacing * Math.max(0, testChars.length - 1);
-                if (testW > maxLineW && cur) {
-                    lines.push(cur);
-                    cur = word;
-                } else {
-                    cur = test;
-                }
-            }
-            if (cur) lines.push(cur);
-            return lines;
+            // \n だけで分割（空行はスキップ）
+            const resultLines = inputText.split('\n').filter(line => line.length > 0);
+            return resultLines.length > 0 ? resultLines : [''];
         }
 
         // ===== フォントサイズ計算 =====
@@ -400,40 +545,45 @@
             return fontSize;
         }
 
-        // フォントサイズを決定する（横方向→縦方向の順で収まるまで縮小）
+        // フォントサイズを決定する。
+        // ブロブの大きさは「普通」サイズ（倍率=1.0）で固定し、
+        // サイズのみを倍率で増減する。
         function computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW) {
-            const words      = inputText.split(' ');
-            let   fontSize   = CW * FONT_SIZE_START_PCT;
-            const MARGIN_PCT = 0.04; // キャンバス上下の余白（CHの割合）
+            const sizeKey    = document.getElementById('text-size').value;
+            const multiplier = SIZE_MULTIPLIERS[sizeKey] || 1.0;
+            const lines      = buildLines(inputText, ctx, 0, 0, 0);
+            const MARGIN_PCT = 0.04;
 
-            // 横方向：最長単語がmaxLineWに収まるまで縮小
-            fontSize = shrinkFontToFitWidth(ctx, words, fontSize, maxLineW, extraSpacing);
-            let lines = buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing);
+            // 「普通」サイズでのフォントサイズを基準値として決める
+            let baseSize = CW * FONT_SIZE_START_PCT;
+            // 横方向ケア：最長行が maxLineW に収まるまで縮小
+            baseSize = shrinkFontToFitWidth(ctx, lines, baseSize, maxLineW, extraSpacing);
 
-            // 縦方向：ブロブ＋テキストブロックがキャンバスに収まるまで縮小
+            // 縦方向ケア：ブロブがキャンバスに収まるまで縮小（ブロブは倍率なしで計算）
             let fitsVertically = false;
-            while (!fitsVertically && fontSize > 10) {
-                ctx.font = `${fontSize}px ${currentFont}`;
-                const m   = ctx.measureText('Hg');
-                const lh  = fontSize * LINE_HEIGHT_MULTIPLIER;
+            while (!fitsVertically && baseSize > 10) {
+                ctx.font = `${baseSize}px ${currentFont}`;
+                const lh = baseSize * LINE_HEIGHT_MULTIPLIER;
                 const widestLineW = Math.max(...lines.map(line => {
                     const lc = line.split('');
                     return lc.reduce((s, c) => s + ctx.measureText(c).width, 0)
                          + extraSpacing * Math.max(0, lc.length - 1);
                 }));
-                const blobW   = Math.max(CW * SHAPE_MIN_WIDTH_PCT, widestLineW / SHAPE_TEXT_COVERAGE);
-                const blobH   = blobW * (SHAPE_SVG_H / SHAPE_SVG_W)
-                              + Math.max(0, lines.length - 3) * lh * SHAPE_VERT_SCALE;
-                const blobCY  = CH * TEXT_CENTER_Y_PCT;
-                const margin  = CH * MARGIN_PCT;
+                const blobW = Math.max(CW * SHAPE_MIN_WIDTH_PCT, widestLineW / SHAPE_TEXT_COVERAGE);
+                const blobH = blobW * (SHAPE_SVG_H / SHAPE_SVG_W)
+                            + Math.max(0, lines.length - 3) * lh * SHAPE_VERT_SCALE;
+                const blobCY = CH * TEXT_CENTER_Y_PCT;
+                const margin = CH * MARGIN_PCT;
                 if ((blobCY - blobH / 2) >= margin && (blobCY + blobH / 2) <= CH - margin) {
                     fitsVertically = true;
                 } else {
-                    fontSize = shrinkFontToFitWidth(ctx, words, fontSize * 0.95, maxLineW, extraSpacing);
-                    lines    = buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing);
+                    baseSize = shrinkFontToFitWidth(ctx, lines, baseSize * 0.95, maxLineW, extraSpacing);
                 }
             }
-            return { fontSize, lines };
+
+            // ブロブ基準サイズに倍率をかけた値が実際に使うサイズ
+            const fontSize = Math.max(10, baseSize * multiplier);
+            return { fontSize, lines, baseSize };
         }
 
         // ===== レイアウト計算 =====
@@ -488,14 +638,20 @@
 
         // ===== 描画関数群 =====
 
-        // 背景を描画する（スクリーンショット・空・単色の3モード対応）
-        function drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky) {
-            if (versionMode === 'screenshot' || versionMode === 'sky') {
-                const img   = versionMode === 'screenshot' ? bgScreenshot : bgSky;
+        // 背景を描画する（スクリーンショット・空・単色・カスタム・透過対応）
+        function drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky, bgCustom) {
+            if (versionMode === 'screenshot' || versionMode === 'sky' || (versionMode === 'custom' && bgCustom)) {
+                let img;
+                if (versionMode === 'screenshot') img = bgScreenshot;
+                else if (versionMode === 'sky') img = bgSky;
+                else img = bgCustom;
+
                 const scale = Math.max(CW / img.naturalWidth, CH / img.naturalHeight);
                 const dw    = img.naturalWidth  * scale;
                 const dh    = img.naturalHeight * scale;
                 ctx.drawImage(img, (CW - dw) / 2, (CH - dh) / 2, dw, dh);
+            } else if (versionMode === 'transparent') {
+                ctx.clearRect(0, 0, CW, CH);
             } else {
                 ctx.fillStyle = versionMode === 'standard' ? BG_COLOR_STANDARD : BG_COLOR_ALTERNATE;
                 ctx.fillRect(0, 0, CW, CH);
@@ -722,8 +878,8 @@
             const resultImage = document.getElementById('cover-image');
             if (!rawText) return;
 
-            // 大文字I・Oのみ保持し、他は小文字に正規化
-            const inputText = rawText.split('').map(c => (c === 'I' || c === 'O') ? c : c.toLowerCase()).join('');
+            // 入力テキストをそのまま使用（大文字・小文字を保持）
+            const inputText = rawText;
 
             const canvas  = document.createElement('canvas');
             canvas.width  = CANVAS_WIDTH;
@@ -741,6 +897,8 @@
                     loadImageCached('bgScreenshot',  BG_SCREENSHOT_URL),
                     loadImageCached('bgSky',         BG_SKY_URL),
                 ]);
+                const bgCustom = imageCache['bgCustom'] || null;
+
 
                 const extraSpacing = CW * LETTER_SPACING_PCT;
                 const maxLineW     = CW * TEXT_MAX_WIDTH_PCT;
@@ -767,7 +925,8 @@
                 const tempBaseline = Math.ceil(tempSize * 0.65);
 
                 // --- 背景 ---
-                drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky);
+                drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky, bgCustom);
+
 
                 // --- PASS 0: ブロブ形状（アウトライン・テクスチャ・グリーンシャドウ）---
                 drawBlob(ctx, { ...layout, fontSize }, shapeTexture, CW, CH, shadowBlur, shadowOX, shadowOY, shadow2OX, shadow2OY);
@@ -782,9 +941,28 @@
                 drawColoredLetters(ctx, lineData, lineOffsets, rotations, colorAssignments, colorImages, specialOImage, fontSize, tempSize, tempBaseline);
 
                 // --- 出力 ---
-                generatedImageUrl = canvas.toDataURL('image/jpeg', 0.92);
-                resultImage.src   = generatedImageUrl;
+                const fmt = document.getElementById('output-format').value;
+                let mimeType, ext, quality;
+                if (fmt === 'png' || versionMode === 'transparent') {
+                    mimeType = 'image/png'; ext = 'png'; quality = undefined;
+                } else if (fmt === 'gif') {
+                    // GIFはtoDataURLで直接生成できないためJPGで代用（PNGにフォールバック）
+                    mimeType = 'image/png'; ext = 'png'; quality = undefined;
+                } else {
+                    mimeType = 'image/jpeg'; ext = 'jpg'; quality = 0.92;
+                }
+                generatedImageUrl = canvas.toDataURL(mimeType, quality);
+                // プレビュー画像を更新
+                resultImage.src = generatedImageUrl;
+                // 透過時のチェッカーボードをプレビューに表示
+                const resultDiv = document.getElementById('result');
+                if (versionMode === 'transparent') {
+                    resultDiv.classList.add('transparent-preview');
+                } else {
+                    resultDiv.classList.remove('transparent-preview');
+                }
                 document.getElementById('download-button').style.display = 'inline-block';
+
 
             } catch (error) {
                 console.error('カバー画像の生成に失敗しました:', error);
@@ -809,7 +987,10 @@
                 const nn = String(now.getMinutes()).padStart(2, '0');
                 const ss = String(now.getSeconds()).padStart(2, '0');
                 const timestamp = `${yy}${mm}${dd}_${hh}${nn}${ss}`;
-                const filename = `${timestamp}_${inputText}.jpg`;
+                const fmt = document.getElementById('output-format').value;
+                const vMode = document.getElementById('version-mode').value;
+                const ext = (fmt === 'png' || vMode === 'transparent') ? 'png' : (fmt === 'gif' ? 'png' : 'jpg');
+                const filename = `${timestamp}_${inputText}.${ext}`;
 
                 const response = await fetch(generatedImageUrl);
                 const blob     = await response.blob();
@@ -830,25 +1011,86 @@
         function initialize() {
             const toggleOptions    = document.querySelectorAll('.toggle-option');
             const versionModeInput = document.getElementById('version-mode');
+            const fontSizeInput    = document.getElementById('text-size');
+            const sizeBtns         = document.querySelectorAll('.size-btn');
+            const fontAllToggle    = document.getElementById('font-all-toggle');
+            const optgroupOther    = document.getElementById('optgroup-other');
+            const customBgInput    = document.getElementById('custom-bg-input');
+            const fileLabel        = document.getElementById('file-label');
 
-            // モード切替トグル：選択時に active クラスを付け替え、入力があれば即時生成
+            // モード切替トグル
             toggleOptions.forEach(option => {
                 option.addEventListener('click', function () {
                     toggleOptions.forEach(opt => opt.classList.remove('active'));
                     this.classList.add('active');
-                    versionModeInput.value = this.getAttribute('data-mode');
+                    const mode = this.getAttribute('data-mode');
+                    versionModeInput.value = mode;
+                    
+                    // カスタム画像の場合のみファイル選択を表示
+                    fileLabel.style.display = (mode === 'custom') ? 'inline-block' : 'none';
+                    
                     if (document.getElementById('input-text').value.trim()) {
                         generateCover();
                     }
                 });
             });
 
+            // 形式選択
+            const formatBtns = document.querySelectorAll('#format-selector .size-btn');
+            const outputFormatInput = document.getElementById('output-format');
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    formatBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    outputFormatInput.value = this.getAttribute('data-fmt');
+                });
+            });
+
+            // サイズ切替
+            sizeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    sizeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    fontSizeInput.value = this.getAttribute('data-size');
+                    if (document.getElementById('input-text').value.trim()) {
+                        generateCover();
+                    }
+                });
+            });
+
+            // フォント全表示トグル
+            fontAllToggle.addEventListener('change', function() {
+                optgroupOther.style.display = this.checked ? 'block' : 'none';
+            });
+
+            // カスタム背景アップロード
+            customBgInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        loadImage(event.target.result).then(img => {
+                            imageCache['bgCustom'] = img;
+                            generateCover();
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
             document.getElementById('generate-button').addEventListener('click', generateCover);
             document.getElementById('download-button').addEventListener('click', downloadCover);
             
+            // 入力中も自動生成（debounce推奨だが簡易的に）
+            document.getElementById('input-text').addEventListener('input', () => {
+                if (window._genTimeout) clearTimeout(window._genTimeout);
+                window._genTimeout = setTimeout(generateCover, 500);
+            });
+            document.getElementById('font-select').addEventListener('change', generateCover);
+
             // 初回起動時に自動生成
             if (document.getElementById('input-text').value.trim()) {
-                setTimeout(generateCover, 100);
+                setTimeout(generateCover, 300);
             }
         }
 
