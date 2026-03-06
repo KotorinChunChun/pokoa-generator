@@ -32,7 +32,7 @@
             color: #ff69b4;
             font-size: 42px;
             text-shadow: 2px 2px 0px #fff, 4px 4px 0px #ffb6c1;
-            margin-top: 20px;
+            margin-top: 0px;
             margin-bottom: 10px;
             user-select: none;
         }
@@ -375,11 +375,11 @@
                         <div class="toggle-container">
                             <div style="font-weight: bold; color: #ff69b4; font-size: 13px; align-self: flex-start;">背景</div>
                             <div class="toggle-options">
-                                <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
                                 <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
                                 <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
                                 <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
                                 <div class="toggle-option" id="transparent-option" data-mode="transparent">透過</div>
+                                <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
                                 <div class="toggle-option" id="custom-option" data-mode="custom">画像UP</div>
                             </div>
                             <input type="file" id="custom-bg-input" accept="image/*">
@@ -453,8 +453,8 @@
         let generatedImageUrl = '';
  // ===== CONFIGURATION SETTINGS =====
  // Canvas dimensions
- const CANVAS_WIDTH  = 1200;
- const CANVAS_HEIGHT = 1200;
+ const CANVAS_WIDTH  = 1000;
+ const CANVAS_HEIGHT = 1000;
  // Background colors
  const BG_COLOR_STANDARD  = '#ffffff';   // Clean white
  const BG_COLOR_ALTERNATE = '#111111';   // Near-black
@@ -1217,6 +1217,7 @@
 
         function initialize() {
             const toggleOptions    = document.querySelectorAll('.toggle-option');
+            const versionModeInput = document.getElementById('version-mode');
             const fontSizeInput    = document.getElementById('text-size');
             const sizeBtns         = document.querySelectorAll('#size-selector .size-btn');
             const fontAllToggle    = document.getElementById('font-all-toggle');

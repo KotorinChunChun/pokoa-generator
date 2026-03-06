@@ -38,8 +38,7 @@
 本プロジェクトは、以下のリソースおよびデザインをベースとしています。
 
 - **デザイン・キャラクター権利元**: [ぽこあポケモン (Pokoa Pokemon)](https://www.pocoapokemon.jp/ja/)
-- **ソースコード/フォント**: [Pixelframe - ぽこぴあフォントロゴジェネレーター](https://pixelframe.design/pokopia-font-logo-generator/)
-- **カスタマイズ**: ことりちゅん
+- **ソースコード/Pokopiaフォント**: [Pixelframe - ぽこぴあフォントロゴジェネレーター](https://pixelframe.design/pokopia-font-logo-generator/)
 
 ## 免責事項
 
