@@ -365,7 +365,7 @@
                             </div>
                             <div class="input-group">
                                 <label>サイズ</label>
-                                <div class="size-selector">
+                                <div class="size-selector" id="size-selector">
                                     <button type="button" class="size-btn" data-size="small">小さめ</button>
                                     <button type="button" class="size-btn active" data-size="medium">普通</button>
                                     <button type="button" class="size-btn" data-size="large">大きめ</button>
@@ -387,6 +387,15 @@
                         </div>
                         <input type="hidden" id="version-mode" value="screenshot">
                         <input type="hidden" id="text-size" value="medium">
+                        <!-- レイアウトスタイル選択 -->
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center; margin: 4px 0;">
+                            <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">プリセット</label>
+                            <div class="size-selector" id="layout-selector">
+                                <button type="button" class="size-btn active" data-layout="american">アメリカ式</button>
+                                <button type="button" class="size-btn" data-layout="japanese">日本式</button>
+                            </div>
+                            <input type="hidden" id="layout-style" value="american">
+                        </div>
                         <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
                             <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">形式</label>
                             <div class="size-selector" id="format-selector">
@@ -410,7 +419,7 @@
                 &nbsp;&nbsp;
                 開発：<a href="https://github.com/KotorinChunChun" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">ことりちゅん</a>
                 &nbsp;&nbsp;
-                Version:2.0
+                ぽこあジェネレータ Version:2.2
             </span>
         </div>
     </div>
@@ -629,9 +638,17 @@
                 }
             }
 
-            // ブロブ基準サイズに倍率をかけた値が実際に使うサイズ
-            const fontSize = Math.max(10, baseSize * multiplier);
-            return { fontSize, lines, baseSize };
+            // ブロブ基準サイズに倍率をかけた値。これがアメリカ式のサイズであり、ブロブ計算の基準。
+            const blobFontSize = Math.max(10, baseSize * multiplier);
+            let fontSize = blobFontSize;
+
+            // 日本式の場合は「文字のみ」さらに小さく調整
+            const layoutStyle = document.getElementById('layout-style').value;
+            if (layoutStyle === 'japanese') {
+                fontSize *= 0.80; // 20%縮小
+            }
+
+            return { fontSize, lines, baseSize, blobFontSize };
         }
 
         // ===== レイアウト計算 =====
@@ -684,6 +701,133 @@
             return { lineData, lineOffsets, widestLineW, ascent, descent, lineHeight, firstBaselineY, allChars, rotations, colorAssignments };
         }
 
+        // ===== 日本式 円弧レイアウト計算 =====
+
+        // 行数に応じて各行を円弧上に配置する
+        function computeLayoutJapanese(ctx, lines, fontSize, CW, CH, extraSpacing, blobFontSize) {
+            ctx.font = `${fontSize}px ${currentFont}`;
+            const metrics    = ctx.measureText('Hg');
+            const ascent     = metrics.actualBoundingBoxAscent;
+            const descent    = metrics.actualBoundingBoxDescent;
+            // 日本式は行間を少し広めにする（通常倍率 + 0.5文字分）
+            const lineHeight = fontSize * (LINE_HEIGHT_MULTIPLIER + 0.5);
+            const n          = lines.length;
+
+            // ブロブの大きさを決めるためのダミー計測（blobFontSizeを使用）
+            ctx.font = `${blobFontSize}px ${currentFont}`;
+            const blobLineHeight = blobFontSize * LINE_HEIGHT_MULTIPLIER;
+            const measuredLinesForBlob = lines.map(line => {
+                const chars = line.split('');
+                const lineW = chars.reduce((s, c) => s + ctx.measureText(c).width, 0) + extraSpacing * Math.max(0, chars.length - 1);
+                return lineW;
+            });
+            const widestLineWForBlob = Math.max(...measuredLinesForBlob);
+
+            // 実際の文字配置のための計測（fontSizeを使用）
+            ctx.font = `${fontSize}px ${currentFont}`;
+            const measuredLines = lines.map(line => {
+                const chars = line.split('');
+                const widths = chars.map(c => ctx.measureText(c).width);
+                const lineW = widths.reduce((s, w) => s + w, 0) + extraSpacing * Math.max(0, chars.length - 1);
+                return { chars, widths, lineW };
+            });
+
+            // アーク半径はブロブの大きさに合わせる方が自然
+            const MAX_HALF_RAD = (38 * Math.PI) / 180;
+            const arcRadius    = widestLineWForBlob / (2 * Math.sin(MAX_HALF_RAD));
+
+            let arcTypes;
+            if      (n === 1) { arcTypes = ['up']; }
+            else if (n === 2) { arcTypes = ['up', 'down']; }
+            else              { arcTypes = ['up', ...Array(n - 2).fill('flat'), 'down']; }
+
+            // ブロブの中心座標（アメリカ式と同じ位置）
+            const blobCY = CH * TEXT_CENTER_Y_PCT;
+            
+            // 日本式独自の文字位置シフト量（前回の-0.09から0.5文字相当下げて-0.02に調整）
+            const textShiftY = -0.02 * CH; 
+            const textCenterY = blobCY + textShiftY;
+
+            const totalH  = (n - 1) * lineHeight;
+            const refYs   = lines.map((_, li) => textCenterY - totalH / 2 + li * lineHeight);
+
+            const lineData    = [];
+            const lineOffsets = [];
+            let   offset      = 0;
+
+            for (let li = 0; li < n; li++) {
+                const { chars, widths, lineW } = measuredLines[li];
+                const arcType = arcTypes[li];
+                const refY    = refYs[li];
+
+                const centers   = [];
+                const baselines = [];
+                let   cumX      = -lineW / 2;
+
+                for (let ci = 0; ci < chars.length; ci++) {
+                    const localX = cumX + widths[ci] / 2;
+                    let charX, charY;
+
+                    if (arcType === 'flat') {
+                        charX = CW / 2 + localX;
+                        charY = refY + ascent;
+                    } else {
+                        const clamped  = Math.min(1, Math.max(-1, localX / arcRadius));
+                        const arcAngle = Math.asin(clamped);
+                        charX = CW / 2 + arcRadius * Math.sin(arcAngle);
+                        if (arcType === 'up') {
+                            charY = refY + arcRadius * (1 - Math.cos(arcAngle)) + ascent;
+                        } else {
+                            charY = refY - arcRadius * (1 - Math.cos(arcAngle)) + ascent;
+                        }
+                    }
+                    centers.push(charX);
+                    baselines.push(charY);
+                    cumX += widths[ci] + extraSpacing;
+                }
+
+                lineOffsets.push(offset);
+                offset += chars.length;
+                lineData.push({ chars, widths, lineW, centers,
+                                baseline: baselines,
+                                _arcType: arcType, _arcRadius: arcRadius, _refY: refY });
+            }
+
+            const widestLineW     = widestLineWForBlob;
+            const allChars        = lineData.flatMap(ld => ld.chars);
+
+            const rotations = [];
+            for (let li = 0; li < lineData.length; li++) {
+                const ld      = lineData[li];
+                const arcType = arcTypes[li];
+                let   cumX    = -ld.lineW / 2;
+                for (let ci = 0; ci < ld.chars.length; ci++) {
+                    const localX   = cumX + ld.widths[ci] / 2;
+                    const clamped  = Math.min(1, Math.max(-1, localX / arcRadius));
+                    const arcAngle = Math.asin(clamped);
+                    const baseRot  = arcType === 'up' ? arcAngle : (arcType === 'down' ? -arcAngle : 0);
+                    const jitter   = (Math.random() * 2 - 1) * MAX_ROTATION_DEG * 0.4 * (Math.PI / 180);
+                    rotations.push(baseRot + jitter);
+                    cumX += ld.widths[ci] + extraSpacing;
+                }
+            }
+
+            const colorAssignments = assignColors(allChars);
+            for (let i = 0; i < allChars.length; i++) {
+                if (allChars[i] === 'O') { rotations[i] = 0; colorAssignments[i] = SPECIAL_O_SENTINEL; }
+            }
+
+            const midIdx0        = Math.floor(lineData[0].baseline.length / 2);
+            const firstBaselineY = lineData[0].baseline[midIdx0] || (refYs[0] + ascent);
+            return { 
+                lineData, lineOffsets, ascent, descent, allChars, rotations, colorAssignments,
+                lineHeight: blobLineHeight, 
+                widestLineW: widestLineWForBlob,
+                firstBaselineY, 
+                _blobCenterY: blobCY 
+            };
+        }
+
         // ===== 描画関数群 =====
 
         // 背景を描画する（スクリーンショット・空・単色・カスタム・透過対応）
@@ -717,7 +861,14 @@
                               + Math.max(0, lines.length - 3) * lineHeight * SHAPE_VERT_SCALE;
             const blobScaleX  = blobTargetW / SHAPE_SVG_W;
             const blobScaleY  = blobTargetH / SHAPE_SVG_H;
-            const textBlockCenterY = ((firstBaselineY - ascent) + (lineData[lineData.length - 1].baseline + descent)) / 2;
+            // textBlockCenterY: baselineが配列の日本式に対応（_blobCenterYを優先使用）
+            const lastLineBs   = lineData[lineData.length - 1].baseline;
+            const lastBaseline = Array.isArray(lastLineBs)
+                ? (lastLineBs[Math.floor(lastLineBs.length / 2)] || lastLineBs[0])
+                : lastLineBs;
+            const textBlockCenterY = layout._blobCenterY !== undefined
+                ? layout._blobCenterY
+                : ((firstBaselineY - ascent) + (lastBaseline + descent)) / 2;
             const blobTranslateX   = CW / 2 - (SHAPE_SVG_W / 2) * blobScaleX;
             const blobTranslateY   = textBlockCenterY - (SHAPE_SVG_H / 2) * blobScaleY;
             const blobPath         = new Path2D(SHAPE_SVG_PATH);
@@ -768,7 +919,7 @@
                     if (ld.chars[ci] === ' ') continue;
                     const flatIdx = lineOffsets[li] + ci;
                     gsCtx.save();
-                    gsCtx.translate(ld.centers[ci] + shadow2OX, ld.baseline + shadow2OY);
+                    gsCtx.translate(ld.centers[ci] + shadow2OX, (Array.isArray(ld.baseline) ? ld.baseline[ci] : ld.baseline) + shadow2OY);
                     gsCtx.rotate(rotations[flatIdx]);
                     gsCtx.font         = `${fontSize}px ${currentFont}`;
                     gsCtx.textBaseline = 'alphabetic';
@@ -827,8 +978,11 @@
                 for (let ci = 0; ci < ld.chars.length; ci++) {
                     if (ld.chars[ci] === ' ') continue;
                     const flatIdx = lineOffsets[li] + ci;
+                    // 日本式は baseline が配列、アメリカ式はスカラー
+                    const bx = ld.centers[ci];
+                    const by = Array.isArray(ld.baseline) ? ld.baseline[ci] : ld.baseline;
                     oCtx.save();
-                    oCtx.translate(ld.centers[ci], ld.baseline);
+                    oCtx.translate(bx, by);
                     oCtx.rotate(rotations[flatIdx]);
                     oCtx.font         = `${fontSize}px ${currentFont}`;
                     oCtx.textBaseline = 'alphabetic';
@@ -856,8 +1010,9 @@
                     if (!HOLE_FILL_CHARS.has(ld.chars[ci])) continue;
                     const flatIdx  = lineOffsets[li] + ci;
                     const bowlOffY = -(ascent * HOLE_CIRCLE_Y_FACTOR);
+                    const by = Array.isArray(ld.baseline) ? ld.baseline[ci] : ld.baseline;
                     ctx.save();
-                    ctx.translate(ld.centers[ci], ld.baseline);
+                    ctx.translate(ld.centers[ci], by);
                     ctx.rotate(rotations[flatIdx]);
                     ctx.beginPath();
                     ctx.arc(0, bowlOffY, holeRadius, 0, Math.PI * 2);
@@ -908,8 +1063,9 @@
                     tCtx.drawImage(fillImage, imgX, imgY, imgSize, imgSize);
 
                     // Step 3: メインキャンバスに回転させてスタンプ
+                    const by = Array.isArray(ld.baseline) ? ld.baseline[ci] : ld.baseline;
                     ctx.save();
-                    ctx.translate(ld.centers[ci], ld.baseline);
+                    ctx.translate(ld.centers[ci], by);
                     ctx.rotate(rotations[flatIdx]);
                     ctx.drawImage(temp, -tempSize / 2, -tempBaseline);
                     ctx.restore();
@@ -955,13 +1111,17 @@
                 await document.fonts.load(`${CW * FONT_SIZE_START_PCT}px ${currentFont}`);
 
                 // フォントサイズと行配列を計算
-                const { fontSize, lines } = computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW);
+                const { fontSize, lines, blobFontSize } = computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW);
 
                 // レイアウト（文字位置・回転・色割り当て）を計算
-                const layout = computeLayout(ctx, lines, fontSize, CW, CH, extraSpacing);
+                const layoutStyle = document.getElementById('layout-style').value;
+                const layout = (layoutStyle === 'japanese')
+                    ? computeLayoutJapanese(ctx, lines, fontSize, CW, CH, extraSpacing, blobFontSize)
+                    : computeLayout(ctx, lines, fontSize, CW, CH, extraSpacing);
                 const { lineData, lineOffsets, ascent, rotations, colorAssignments } = layout;
 
                 // 描画で共通して使う定数
+                const actualFontSize = (layoutStyle === 'japanese') ? blobFontSize : fontSize;
                 const outlineWidth = fontSize * OUTLINE_WIDTH_FACTOR;
                 const shadowBlur   = CW * SHADOW_BLUR_PCT;
                 const shadowOX     = CW * SHADOW_OX_PCT;
@@ -975,9 +1135,8 @@
                 // --- 背景 ---
                 drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky, bgCustom);
 
-
                 // --- PASS 0: ブロブ形状（アウトライン・テクスチャ・グリーンシャドウ）---
-                drawBlob(ctx, { ...layout, fontSize }, shapeTexture, CW, CH, shadowBlur, shadowOX, shadowOY, shadow2OX, shadow2OY);
+                drawBlob(ctx, { ...layout, fontSize: actualFontSize }, shapeTexture, CW, CH, shadowBlur, shadowOX, shadowOY, shadow2OX, shadow2OY);
 
                 // --- PASS 1: 文字の白いアウトライン ---
                 drawTextOutline(ctx, lineData, lineOffsets, rotations, fontSize, CW, CH, outlineWidth, shadowBlur, shadowOX, shadowOY);
@@ -1058,9 +1217,8 @@
 
         function initialize() {
             const toggleOptions    = document.querySelectorAll('.toggle-option');
-            const versionModeInput = document.getElementById('version-mode');
             const fontSizeInput    = document.getElementById('text-size');
-            const sizeBtns         = document.querySelectorAll('.size-btn');
+            const sizeBtns         = document.querySelectorAll('#size-selector .size-btn');
             const fontAllToggle    = document.getElementById('font-all-toggle');
             const optgroupOther    = document.getElementById('optgroup-other');
             const customBgInput    = document.getElementById('custom-bg-input');
@@ -1080,6 +1238,18 @@
                     if (document.getElementById('input-text').value.trim()) {
                         generateCover();
                     }
+                });
+            });
+
+            // レイアウトスタイル切替
+            const layoutBtns      = document.querySelectorAll('#layout-selector .size-btn');
+            const layoutStyleInput = document.getElementById('layout-style');
+            layoutBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    layoutBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    layoutStyleInput.value = this.getAttribute('data-layout');
+                    if (document.getElementById('input-text').value.trim()) generateCover();
                 });
             });
 
