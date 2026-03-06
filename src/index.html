@@ -279,92 +279,140 @@
             opacity: 0.7;
             text-decoration: underline;
         }
+        /* ===== レスポンシブ 2カラムレイアウト (960px以上) ===== */
+        @media (min-width: 960px) {
+            .album-cover-generator {
+                max-width: 1280px;
+            }
+            .generator-layout {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 30px;
+            }
+            .generator-preview {
+                flex: 1 1 0;
+                min-width: 0;
+                /* スクロールしても画像が常に見えるように */
+                position: sticky;
+                top: 20px;
+            }
+            /* プレビュー画像をビューポートに収める */
+            .generator-preview #result img {
+                max-height: calc(100vh - 180px);
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+            }
+            .generator-controls {
+                flex: 0 0 360px;
+                width: 360px;
+            }
+            /* 幅広画面ではformの上余白を減らす */
+            .album-cover-generator form {
+                margin-top: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
         <h1 class="main-title">ぽこあジェネレーター</h1>
         <div class="album-cover-generator">
-            <div id="result">
-                <img decoding="async" src="" alt="pokoa font and logo generator cover image" id="cover-image" style="max-width: 100%;">
-            </div>
-            <form id="album-cover-form">
-                <div class="input-group">
-                    <label for="input-text">テキスト (改行で行が変わります)</label>
-                    <textarea id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)">ぽこあジェネレーター</textarea>
-                </div>
-                <div class="control-row">
-                    <div class="input-group">
-                        <label for="font-select">フォント</label>
-                        <select id="font-select">
-                            <optgroup label="おすすめ" id="optgroup-recommended">
-                                <option value="'pokoa'">ぽこぴあフォント (オリジナル)</option>
-                                <option value="'Potta One', cursive" selected>Potta One</option>
-                                <option value="'Kiwi Maru', serif">Kiwi Maru</option>
-                                <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
-                                <option value="'Yomogi', cursive">よもぎ (手書き風 / ふい字風)</option>
-                                <option value="'Stick', sans-serif">ステック (元気な手書き風)</option>
-                                <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
-                                <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
-                            </optgroup>
-                            <optgroup label="その他" id="optgroup-other" style="display: none;">
-                                <option value="'M PLUS 1p', sans-serif">M PLUS 1p</option>
-                                <option value="'M PLUS Rounded 1c', sans-serif">M PLUS Rounded 1c</option>
-                                <option value="'Sawarabi Gothic', sans-serif">さわらびゴシック</option>
-                                <option value="'Sawarabi Mincho', serif">さわらび明朝</option>
-                                <option value="'Kaisei Tokumin', serif">Kaisei Tokumin</option>
-                                <option value="'Shippori Mincho', serif">しっぽり明朝</option>
-                                <option value="'Dela Gothic One', cursive">Dela Gothic One</option>
-                                <option value="'DotGothic16', sans-serif">DotGothic16</option>
-                                <option value="'Darumadrop One', cursive">Darumadrop One</option>
-                            </optgroup>
-                        </select>
-                        <label class="font-toggle-wrapper">
-                            <input type="checkbox" id="font-all-toggle"> すべて表示
-                        </label>
+            <div class="generator-layout">
+                <!-- 左：プレビュー -->
+                <div class="generator-preview">
+                    <div id="result">
+                        <img decoding="async" src="" alt="pokoa font and logo generator cover image" id="cover-image" style="max-width: 100%;">
                     </div>
-                    <div class="input-group">
-                        <label>サイズ</label>
-                        <div class="size-selector">
-                            <button type="button" class="size-btn" data-size="small">小さめ</button>
-                            <button type="button" class="size-btn active" data-size="medium">普通</button>
-                            <button type="button" class="size-btn" data-size="large">大きめ</button>
+                </div>
+                <!-- 右：設定 -->
+                <div class="generator-controls">
+                    <form id="album-cover-form">
+                        <div class="input-group">
+                            <label for="input-text">テキスト (改行で行が変わります)</label>
+                            <textarea id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)">ぽこあジェネレーター</textarea>
                         </div>
-                    </div>
+                        <div class="control-row">
+                            <div class="input-group">
+                                <label for="font-select">フォント</label>
+                                <select id="font-select">
+                                    <optgroup label="おすすめ" id="optgroup-recommended">
+                                        <option value="'pokoa'">ぽこぴあフォント (オリジナル)</option>
+                                        <option value="'Potta One', cursive" selected>Potta One</option>
+                                        <option value="'Kiwi Maru', serif">Kiwi Maru</option>
+                                        <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
+                                        <option value="'Yomogi', cursive">よもぎ (手書き風)</option>
+                                        <option value="'Stick', sans-serif">ステック (元気な手書き風)</option>
+                                        <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
+                                        <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
+                                    </optgroup>
+                                    <optgroup label="その他" id="optgroup-other" style="display: none;">
+                                        <option value="'M PLUS 1p', sans-serif">M PLUS 1p</option>
+                                        <option value="'M PLUS Rounded 1c', sans-serif">M PLUS Rounded 1c</option>
+                                        <option value="'Sawarabi Gothic', sans-serif">さわらびゴシック</option>
+                                        <option value="'Sawarabi Mincho', serif">さわらび明朝</option>
+                                        <option value="'Kaisei Tokumin', serif">Kaisei Tokumin</option>
+                                        <option value="'Shippori Mincho', serif">しっぽり明朝</option>
+                                        <option value="'Dela Gothic One', cursive">Dela Gothic One</option>
+                                        <option value="'DotGothic16', sans-serif">DotGothic16</option>
+                                        <option value="'Darumadrop One', cursive">Darumadrop One</option>
+                                    </optgroup>
+                                </select>
+                                <label class="font-toggle-wrapper">
+                                    <input type="checkbox" id="font-all-toggle"> すべて表示
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>サイズ</label>
+                                <div class="size-selector">
+                                    <button type="button" class="size-btn" data-size="small">小さめ</button>
+                                    <button type="button" class="size-btn active" data-size="medium">普通</button>
+                                    <button type="button" class="size-btn" data-size="large">大きめ</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toggle-container">
+                            <div style="font-weight: bold; color: #ff69b4; font-size: 13px; align-self: flex-start;">背景</div>
+                            <div class="toggle-options">
+                                <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
+                                <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
+                                <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
+                                <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
+                                <div class="toggle-option" id="transparent-option" data-mode="transparent">透過</div>
+                                <div class="toggle-option" id="custom-option" data-mode="custom">画像UP</div>
+                            </div>
+                            <input type="file" id="custom-bg-input" accept="image/*">
+                            <label for="custom-bg-input" class="file-upload-label" id="file-label" style="display: none;">ファイルを選択...</label>
+                        </div>
+                        <input type="hidden" id="version-mode" value="screenshot">
+                        <input type="hidden" id="text-size" value="medium">
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                            <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">形式</label>
+                            <div class="size-selector" id="format-selector">
+                                <button type="button" class="size-btn active" data-fmt="jpg">JPG</button>
+                                <button type="button" class="size-btn" data-fmt="png">PNG</button>
+                                <button type="button" class="size-btn" data-fmt="gif">GIF</button>
+                            </div>
+                            <input type="hidden" id="output-format" value="jpg">
+                        </div>
+                        <div class="button-group">
+                            <button type="button" id="generate-button">生成</button>
+                            <button type="button" id="download-button" style="display: none;">ダウンロード</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="toggle-container">
-                    <div style="font-weight: bold; color: #ff69b4; font-size: 13px; align-self: flex-start;">背景</div>
-                    <div class="toggle-options">
-                        <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
-                        <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
-                        <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
-                        <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
-                        <div class="toggle-option" id="transparent-option" data-mode="transparent">透過</div>
-                        <div class="toggle-option" id="custom-option" data-mode="custom">画像UP</div>
-                    </div>
-                    <input type="file" id="custom-bg-input" accept="image/*">
-                    <label for="custom-bg-input" class="file-upload-label" id="file-label" style="display: none;">ファイルを選択...</label>
-                </div>
-                <input type="hidden" id="version-mode" value="screenshot">
-                <input type="hidden" id="text-size" value="medium">
-                <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
-                    <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">形式</label>
-                    <div class="size-selector" id="format-selector">
-                        <button type="button" class="size-btn active" data-fmt="jpg">JPG</button>
-                        <button type="button" class="size-btn" data-fmt="png">PNG</button>
-                        <button type="button" class="size-btn" data-fmt="gif">GIF</button>
-                    </div>
-                    <input type="hidden" id="output-format" value="jpg">
-                </div>
-                <div class="button-group">
-                    <button type="button" id="generate-button">生成</button>
-                    <button type="button" id="download-button" style="display: none;">ダウンロード</button>
-                </div>
-            </form>
+            </div>
         </div>
-        <a href="https://www.pocoapokemon.jp/ja/" target="_blank" rel="noopener noreferrer" class="credits-link">
-            [ぽこあポケモン (Pokoa Pokemon)]
-        </a>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; color: #aaa;">
+            <span>
+                デザイン権利元：<a href="https://www.pocoapokemon.jp/ja/" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">[ぽこあポケモン (Pokoa Pokemon)]</a>
+                &nbsp;&nbsp;
+                開発：<a href="https://github.com/KotorinChunChun" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">ことりちゅん</a>
+                &nbsp;&nbsp;
+                Version:2.0
+            </span>
+        </div>
     </div>
     <script>
         // 現在選択中のフォントを保持
