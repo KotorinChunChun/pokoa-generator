@@ -9,311 +9,288 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&family=Hachi+Maru+Pop&family=Kiwi+Maru:wght@500&family=Potta+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@700&family=Yomogi&family=Stick&family=M+PLUS+1p&family=M+PLUS+Rounded+1c&family=Sawarabi+Gothic&family=Sawarabi+Mincho&family=Kaisei+Tokumin&family=Shippori+Mincho&family=Dela+Gothic+One&family=DotGothic16&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'pokoa';
-            src: url('assets/pokoaRegular.woff2') format('woff2'),
-                 url('assets/pokoaRegular.woff') format('woff'),
-                 url('assets/pokoaRegular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Zen Maru Gothic', 'Arial', sans-serif;
-            background-color: #fff0f5;
-            background-image: radial-gradient(#ffc0cb 15%, transparent 16%), radial-gradient(#ffc0cb 15%, transparent 16%);
-            background-size: 30px 30px;
-            background-position: 0 0, 15px 15px;
-        }
-        .main-title {
-            text-align: center;
-            font-family: 'Potta One', cursive;
-            color: #ff69b4;
-            font-size: 42px;
-            text-shadow: 2px 2px 0px #fff, 4px 4px 0px #ffb6c1;
-            margin-top: 0px;
-            margin-bottom: 10px;
-            user-select: none;
-        }
-        .album-cover-generator {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.2);
-        }
-        .album-cover-generator form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-            background: #ffffff;
-            padding: 20px;
-            border: 3px dashed #ffb6c1;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-        }
-        .input-group label {
-            font-weight: bold;
-            color: #ff69b4;
-            font-size: 14px;
-        }
-        .album-cover-generator textarea {
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ffb6c1;
-            border-radius: 10px;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .album-cover-generator textarea:focus,
-        .album-cover-generator select:focus {
-            outline: none;
-            border-color: #ff69b4;
-            box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
-        }
-        .control-row {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            justify-content: space-between;
-        }
-        .control-row .input-group {
-            flex: 1;
-        }
-        .font-toggle-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #ff69b4;
-            margin-top: -8px;
-            cursor: pointer;
-        }
-        .size-selector {
-            display: flex;
-            gap: 5px;
-            background: #fff0f5;
-            padding: 4px;
-            border-radius: 10px;
-            border: 1px solid #ffb6c1;
-        }
-        .size-btn {
-            flex: 1;
-            padding: 10px 20px;
-            font-size: 13px;
-            border-radius: 6px;
-            border: none;
-            background: transparent;
-            color: #ff69b4;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .size-btn.active {
-            background: #ff69b4;
-            color: white;
-        }
-        #custom-bg-input {
-            display: none;
-        }
-        .file-upload-label {
-            display: inline-block;
-            padding: 5px 12px;
-            background: #fecfef;
-            color: #d63384;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
-            border: 1px dashed #ff69b4;
-        }
-        .toggle-option[data-mode="transparent"] {
-            border: 1px dashed #ffb6c1;
-            background: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%), 
-                        linear-gradient(45deg, #eee 25%, white 25%, white 75%, #eee 75%, #eee 100%);
-            background-size: 10px 10px;
-            background-position: 0 0, 5px 5px;
-            color: #333;
-        }
-        .toggle-option[data-mode="transparent"].active {
-            box-shadow: 0 0 0 2px #ff69b4;
-            color: #ff1493;
-        }
-        .album-cover-generator #result {
-            margin-top: 10px;
-            position: relative;
-        }
-        /* 透過時のチェッカーボード背景 */
-        .album-cover-generator #result.transparent-preview {
-            background-image:
-                linear-gradient(45deg, #ccc 25%, transparent 25%),
-                linear-gradient(-45deg, #ccc 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #ccc 75%),
-                linear-gradient(-45deg, transparent 75%, #ccc 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            background-color: #fff;
-            border-radius: 10px;
-        }
-        .album-cover-generator #result img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: block;
-        }
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        button#generate-button {
-            padding: 15px 30px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            color: #d63384;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            font-family: inherit;
-            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        button#generate-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
-        }
-        button#download-button {
-            padding: 15px 30px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            font-family: inherit;
-            box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: none;
-        }
-        button#download-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(161, 140, 209, 0.6);
-        }
-        .toggle-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-            user-select: none;
-        }
-        .toggle-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            background-color: #fff0f5;
-            border-radius: 25px;
-            padding: 5px;
-            box-shadow: inset 0 2px 5px rgba(255, 182, 193, 0.5);
-        }
-        .toggle-option {
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #ff69b4;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            font-family: inherit;
-        }
-        .toggle-option.active {
-            background-color: #ff69b4;
-            color: white;
-            box-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
-        }
-        .toggle-option:hover:not(.active) {
-            background-color: #ffe4e1;
-        }
-        .album-cover-generator select {
-            padding: 10px 12px;
-            font-size: 14px;
-            border: 2px solid #ffb6c1;
-            border-radius: 10px;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: inherit;
-            background: #fff;
-        }
-        .album-cover-generator select:focus {
-            outline: none;
-            border-color: #ff69b4;
-            box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
-        }
-        .credits-link {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #ff69b4;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-        .credits-link:hover {
-            opacity: 0.7;
-            text-decoration: underline;
-        }
-        /* ===== レスポンシブ 2カラムレイアウト (960px以上) ===== */
-        @media (min-width: 960px) {
-            .album-cover-generator {
-                max-width: 1280px;
-            }
-            .generator-layout {
-                display: flex;
-                flex-direction: row;
-                align-items: flex-start;
-                gap: 30px;
-            }
-            .generator-preview {
-                flex: 1 1 0;
-                min-width: 0;
-                /* スクロールしても画像が常に見えるように */
-                position: sticky;
-                top: 20px;
-            }
-            /* プレビュー画像をビューポートに収める */
-            .generator-preview #result img {
-                max-height: calc(100vh - 180px);
-                width: 100%;
-                height: auto;
-                object-fit: contain;
-            }
-            .generator-controls {
-                flex: 0 0 360px;
-                width: 360px;
-            }
-            /* 幅広画面ではformの上余白を減らす */
-            .album-cover-generator form {
-                margin-top: 0;
-            }
-        }
-    </style>
+@font-face {
+    font-family: 'pokoa';
+    src: url('assets/pokoaRegular.woff2') format('woff2'),
+         url('assets/pokoaRegular.woff') format('woff'),
+         url('assets/pokoaRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Zen Maru Gothic', 'Arial', sans-serif;
+    background-color: #fff0f5;
+    background-image: radial-gradient(#ffc0cb 15%, transparent 16%), radial-gradient(#ffc0cb 15%, transparent 16%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+}
+.main-title {
+    text-align: center;
+    font-family: 'Potta One', cursive;
+    color: #ff69b4;
+    font-size: 42px;
+    text-shadow: 2px 2px 0px #fff, 4px 4px 0px #ffb6c1;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    user-select: none;
+}
+.album-cover-generator {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.2);
+}
+.album-cover-generator form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    background: #ffffff;
+    padding: 20px;
+    border: 3px dashed #ffb6c1;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+.input-group label {
+    font-weight: bold;
+    color: #ff69b4;
+    font-size: 14px;
+}
+.album-cover-generator textarea {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ffb6c1;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+.album-cover-generator textarea:focus,
+.album-cover-generator select:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+}
+.control-row {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    justify-content: space-between;
+}
+.control-row .input-group {
+    flex: 1;
+}
+.font-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #ff69b4;
+    margin-top: -8px;
+    cursor: pointer;
+}
+.size-selector, .toggle-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    background: #fff0f5;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid #ffb6c1;
+    width: 100%;
+    box-sizing: border-box;
+}
+.size-btn, .toggle-option {
+    flex: 1;
+    min-width: 60px;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #ff69b4;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.size-btn.active, .toggle-option.active {
+    background: #ff69b4;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
+}
+.size-btn:hover:not(.active), .toggle-option:hover:not(.active) {
+    background-color: #ffe4e1;
+}
+#custom-bg-input {
+    display: none;
+}
+.file-upload-label {
+    display: inline-block;
+    padding: 5px 12px;
+    background: #fecfef;
+    color: #d63384;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 5px;
+    border: 1px dashed #ff69b4;
+}
+.toggle-option[data-mode="transparent"] {
+    border: 1px dashed #ffb6c1;
+    background: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%), 
+                linear-gradient(45deg, #eee 25%, white 25%, white 75%, #eee 75%, #eee 100%);
+    background-size: 10px 10px;
+    background-position: 0 0, 5px 5px;
+    color: #333;
+}
+.toggle-option[data-mode="transparent"].active {
+    box-shadow: 0 0 0 2px #ff69b4;
+    color: #ff1493;
+    background-color: transparent;
+}
+.album-cover-generator #result {
+    margin-top: 10px;
+    position: relative;
+}
+/* 透過時のチェッカーボード背景 */
+.album-cover-generator #result.transparent-preview {
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #fff;
+    border-radius: 10px;
+}
+.album-cover-generator #result img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: block;
+}
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+button#generate-button {
+    padding: 15px 30px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+    color: #d63384;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    font-family: inherit;
+    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+button#generate-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+}
+button#download-button {
+    padding: 15px 30px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    font-family: inherit;
+    box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: none;
+}
+button#download-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(161, 140, 209, 0.6);
+}
+
+.album-cover-generator select {
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 2px solid #ffb6c1;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    background: #fff;
+}
+.album-cover-generator select:focus {
+    outline: none;
+    border-color: #ff69b4;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+}
+.credits-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #ff69b4;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+.credits-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+/* ===== レスポンシブ 2カラムレイアウト (960px以上) ===== */
+@media (min-width: 960px) {
+    .album-cover-generator {
+        max-width: 1280px;
+    }
+    .generator-layout {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 30px;
+    }
+    .generator-preview {
+        flex: 1 1 0;
+        min-width: 0;
+        /* スクロールしても画像が常に見えるように */
+        position: sticky;
+        top: 20px;
+    }
+    /* プレビュー画像をビューポートに収める */
+    .generator-preview #result img {
+        max-height: calc(100vh - 180px);
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+    .generator-controls {
+        flex: 0 0 360px;
+        width: 360px;
+    }
+    /* 幅広画面ではformの上余白を減らす */
+    .album-cover-generator form {
+        margin-top: 0;
+    }
+}
+
+</style>
 </head>
 <body>
     <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
@@ -330,15 +307,27 @@
                 <div class="generator-controls">
                     <form id="album-cover-form">
                         <div class="input-group">
-                            <label for="input-text">テキスト (改行で行が変わります)</label>
+                            <label for="input-text">表示テキスト</label>
                             <textarea id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)">ぽこあジェネレーター</textarea>
                         </div>
                         <div class="control-row">
                             <div class="input-group">
-                                <label for="font-select">フォント</label>
-                                <select id="font-select">
-                                    <optgroup label="おすすめ" id="optgroup-recommended">
+                                <label for="font-select-en">英字フォント</label>
+                                <select id="font-select-en">
+                                    <optgroup label="英字フォント">
                                         <option value="'pokoa'">ぽこぴあフォント</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Impact', sans-serif">Impact</option>
+                                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                                        <option value="'Courier New', monospace">Courier New</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="font-select-ja">日本語フォント</label>
+                                <select id="font-select-ja">
+                                    <optgroup label="日本語フォント">
                                         <option value="'Potta One', cursive" selected>Potta One</option>
                                         <option value="'Kiwi Maru', serif">Kiwi Maru</option>
                                         <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
@@ -346,8 +335,6 @@
                                         <option value="'Stick', sans-serif">ステック (元気な手書き風)</option>
                                         <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
                                         <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
-                                    </optgroup>
-                                    <optgroup label="その他" id="optgroup-other" style="display: none;">
                                         <option value="'M PLUS 1p', sans-serif">M PLUS 1p</option>
                                         <option value="'M PLUS Rounded 1c', sans-serif">M PLUS Rounded 1c</option>
                                         <option value="'Sawarabi Gothic', sans-serif">さわらびゴシック</option>
@@ -359,28 +346,25 @@
                                         <option value="'Darumadrop One', cursive">Darumadrop One</option>
                                     </optgroup>
                                 </select>
-                                <label class="font-toggle-wrapper">
-                                    <input type="checkbox" id="font-all-toggle"> すべて表示
-                                </label>
-                            </div>
-                            <div class="input-group">
-                                <label>サイズ</label>
-                                <div class="size-selector" id="size-selector">
-                                    <button type="button" class="size-btn" data-size="small">小さめ</button>
-                                    <button type="button" class="size-btn active" data-size="medium">普通</button>
-                                    <button type="button" class="size-btn" data-size="large">大きめ</button>
-                                </div>
                             </div>
                         </div>
-                        <div class="toggle-container">
-                            <div style="font-weight: bold; color: #ff69b4; font-size: 13px; align-self: flex-start;">背景</div>
+                        <div class="input-group">
+                            <label>サイズ</label>
+                            <div class="size-selector" id="size-selector">
+                                <button type="button" class="size-btn" data-size="small">小さめ</button>
+                                <button type="button" class="size-btn active" data-size="medium">普通</button>
+                                <button type="button" class="size-btn" data-size="large">大きめ</button>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>背景</label>
                             <div class="toggle-options">
-                                <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
-                                <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
-                                <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
-                                <div class="toggle-option" id="transparent-option" data-mode="transparent">透過</div>
-                                <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
-                                <div class="toggle-option" id="custom-option" data-mode="custom">画像UP</div>
+                                <button type="button" class="toggle-option" id="sky-option" data-mode="sky">青空</button>
+                                <button type="button" class="toggle-option" id="standard-option" data-mode="standard">白</button>
+                                <button type="button" class="toggle-option" id="alternate-option" data-mode="alternate">黒</button>
+                                <button type="button" class="toggle-option" id="transparent-option" data-mode="transparent">透過</button>
+                                <button type="button" class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクショ</button>
+                                <button type="button" class="toggle-option" id="custom-option" data-mode="custom">画像UP</button>
                             </div>
                             <input type="file" id="custom-bg-input" accept="image/*">
                             <label for="custom-bg-input" class="file-upload-label" id="file-label" style="display: none;">ファイルを選択...</label>
@@ -388,16 +372,16 @@
                         <input type="hidden" id="version-mode" value="screenshot">
                         <input type="hidden" id="text-size" value="medium">
                         <!-- レイアウトスタイル選択 -->
-                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center; margin: 4px 0;">
-                            <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">プリセット</label>
+                        <div class="input-group">
+                            <label>プリセット</label>
                             <div class="size-selector" id="layout-selector">
                                 <button type="button" class="size-btn active" data-layout="american">アメリカ式</button>
                                 <button type="button" class="size-btn" data-layout="japanese">日本式</button>
                             </div>
                             <input type="hidden" id="layout-style" value="american">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
-                            <label style="font-weight: bold; color: #ff69b4; font-size: 13px;">形式</label>
+                        <div class="input-group">
+                            <label>形式</label>
                             <div class="size-selector" id="format-selector">
                                 <button type="button" class="size-btn active" data-fmt="jpg">JPG</button>
                                 <button type="button" class="size-btn" data-fmt="png">PNG</button>
@@ -419,13 +403,19 @@
                 &nbsp;&nbsp;
                 開発：<a href="https://github.com/KotorinChunChun" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">ことりちゅん</a>
                 &nbsp;&nbsp;
-                <a href="https://github.com/KotorinChunChun/pokoa-generator" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">ぽこあジェネレータ Version:2.2</a>
+                <a href="https://github.com/KotorinChunChun/pokoa-generator" target="_blank" rel="noopener noreferrer" class="credits-link" style="margin-top: 0;">ぽこあジェネレータ Version:2.4</a>
             </span>
         </div>
     </div>
     <script>
         // 現在選択中のフォントを保持
-        let currentFont = "'Potta One', cursive";
+        let currentFontEn = "Arial, sans-serif";
+        let currentFontJa = "'Potta One', cursive";
+
+        // 文字が英数字かどうかでフォントを切り替える
+        function getFontForChar(c) {
+            return /[a-zA-Z0-9]/.test(c) ? currentFontEn : currentFontJa;
+        }
 
         // ===== キャッシュ管理 =====
         // キーと対応する画像のキャッシュを保持するオブジェクト
@@ -453,8 +443,8 @@
         let generatedImageUrl = '';
  // ===== CONFIGURATION SETTINGS =====
  // Canvas dimensions
- const CANVAS_WIDTH  = 1000;
- const CANVAS_HEIGHT = 1000;
+ const CANVAS_WIDTH  = 800;
+ const CANVAS_HEIGHT = 800;
  // Background colors
  const BG_COLOR_STANDARD  = '#ffffff';   // Clean white
  const BG_COLOR_ALTERNATE = '#111111';   // Near-black
@@ -574,30 +564,30 @@
 
         // 改行のみで行分割（スペース分割なし）
         function buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing) {
-            // \n だけで分割（空行はスキップ）
-            const resultLines = inputText.split('\n').filter(line => line.length > 0);
+            // \n だけで分割（空行も含める）
+            const resultLines = inputText.split('\n');
             return resultLines.length > 0 ? resultLines : [''];
         }
 
         // ===== フォントサイズ計算 =====
 
         // 現在のフォントサイズで最長単語の幅を計算する
-        function measureLongestWordWidth(words, ctx, extraSpacing) {
+        function measureLongestWordWidth(words, ctx, fontSize, extraSpacing) {
             return Math.max(...words.map(w => {
                 const wChars = w.split('');
-                return wChars.reduce((s, c) => s + ctx.measureText(c).width, 0)
-                     + extraSpacing * Math.max(0, wChars.length - 1);
+                return wChars.reduce((s, c) => {
+                    ctx.font = `${fontSize}px ${getFontForChar(c)}`;
+                    return s + ctx.measureText(c).width;
+                }, 0) + extraSpacing * Math.max(0, wChars.length - 1);
             }));
         }
 
         // 最長単語がmaxLineWに収まるまでフォントサイズを縮小する
         function shrinkFontToFitWidth(ctx, words, fontSize, maxLineW, extraSpacing) {
-            ctx.font = `${fontSize}px ${currentFont}`;
-            let longestWordW = measureLongestWordWidth(words, ctx, extraSpacing);
+            let longestWordW = measureLongestWordWidth(words, ctx, fontSize, extraSpacing);
             while (longestWordW > maxLineW && fontSize > 10) {
                 fontSize    *= 0.95;
-                ctx.font     = `${fontSize}px ${currentFont}`;
-                longestWordW = measureLongestWordWidth(words, ctx, extraSpacing);
+                longestWordW = measureLongestWordWidth(words, ctx, fontSize, extraSpacing);
             }
             return fontSize;
         }
@@ -619,12 +609,13 @@
             // 縦方向ケア：ブロブがキャンバスに収まるまで縮小（ブロブは倍率なしで計算）
             let fitsVertically = false;
             while (!fitsVertically && baseSize > 10) {
-                ctx.font = `${baseSize}px ${currentFont}`;
                 const lh = baseSize * LINE_HEIGHT_MULTIPLIER;
                 const widestLineW = Math.max(...lines.map(line => {
                     const lc = line.split('');
-                    return lc.reduce((s, c) => s + ctx.measureText(c).width, 0)
-                         + extraSpacing * Math.max(0, lc.length - 1);
+                    return lc.reduce((s, c) => {
+                        ctx.font = `${baseSize}px ${getFontForChar(c)}`;
+                        return s + ctx.measureText(c).width;
+                    }, 0) + extraSpacing * Math.max(0, lc.length - 1);
                 }));
                 const blobW = Math.max(CW * SHAPE_MIN_WIDTH_PCT, widestLineW / SHAPE_TEXT_COVERAGE);
                 const blobH = blobW * (SHAPE_SVG_H / SHAPE_SVG_W)
@@ -655,7 +646,7 @@
 
         // 文字ごとの描画位置・回転・色割り当てを一括計算する
         function computeLayout(ctx, lines, fontSize, CW, CH, extraSpacing) {
-            ctx.font = `${fontSize}px ${currentFont}`;
+            ctx.font = `${fontSize}px ${currentFontJa}`; // 全体基準値には日本語フォントを用いる
             const metrics    = ctx.measureText('Hg');
             const ascent     = metrics.actualBoundingBoxAscent;
             const descent    = metrics.actualBoundingBoxDescent;
@@ -668,9 +659,11 @@
 
             // 各行の文字幅・中心X座標・ベースラインYを計算
             const lineData = lines.map((line, li) => {
-                ctx.font = `${fontSize}px ${currentFont}`;
                 const lChars  = line.split('');
-                const cWidths = lChars.map(c => ctx.measureText(c).width);
+                const cWidths = lChars.map(c => {
+                    ctx.font = `${fontSize}px ${getFontForChar(c)}`;
+                    return ctx.measureText(c).width;
+                });
                 const lineW   = cWidths.reduce((s, w) => s + w, 0)
                               + extraSpacing * Math.max(0, lChars.length - 1);
                 const centers = [];
@@ -705,39 +698,43 @@
 
         // 行数に応じて各行を円弧上に配置する
         function computeLayoutJapanese(ctx, lines, fontSize, CW, CH, extraSpacing, blobFontSize) {
-            ctx.font = `${fontSize}px ${currentFont}`;
+            ctx.font = `${fontSize}px ${currentFontJa}`; // 基準値は日本語フォントを利用
             const metrics    = ctx.measureText('Hg');
             const ascent     = metrics.actualBoundingBoxAscent;
             const descent    = metrics.actualBoundingBoxDescent;
-            // 日本式は行間を少し広めにする（通常倍率 + 0.5文字分）
-            const lineHeight = fontSize * (LINE_HEIGHT_MULTIPLIER + 0.5);
+            // 日本式は行間を広めにする（通常倍率 + 1.0文字分）
+            const lineHeight = fontSize * (LINE_HEIGHT_MULTIPLIER + 1.0);
             const n          = lines.length;
 
             // ブロブの大きさを決めるためのダミー計測（blobFontSizeを使用）
-            ctx.font = `${blobFontSize}px ${currentFont}`;
             const blobLineHeight = blobFontSize * LINE_HEIGHT_MULTIPLIER;
             const measuredLinesForBlob = lines.map(line => {
                 const chars = line.split('');
-                const lineW = chars.reduce((s, c) => s + ctx.measureText(c).width, 0) + extraSpacing * Math.max(0, chars.length - 1);
+                const lineW = chars.reduce((s, c) => {
+                    ctx.font = `${blobFontSize}px ${getFontForChar(c)}`;
+                    return s + ctx.measureText(c).width;
+                }, 0) + extraSpacing * Math.max(0, chars.length - 1);
                 return lineW;
             });
             const widestLineWForBlob = Math.max(...measuredLinesForBlob);
 
             // 実際の文字配置のための計測（fontSizeを使用）
-            ctx.font = `${fontSize}px ${currentFont}`;
             const measuredLines = lines.map(line => {
                 const chars = line.split('');
-                const widths = chars.map(c => ctx.measureText(c).width);
+                const widths = chars.map(c => {
+                    ctx.font = `${fontSize}px ${getFontForChar(c)}`;
+                    return ctx.measureText(c).width;
+                });
                 const lineW = widths.reduce((s, w) => s + w, 0) + extraSpacing * Math.max(0, chars.length - 1);
                 return { chars, widths, lineW };
             });
 
             // アーク半径はブロブの大きさに合わせる方が自然
             const MAX_HALF_RAD = (38 * Math.PI) / 180;
-            const arcRadius    = widestLineWForBlob / (2 * Math.sin(MAX_HALF_RAD));
+            const arcRadius    = Math.max(1, widestLineWForBlob / (2 * Math.sin(MAX_HALF_RAD)));
 
             let arcTypes;
-            if      (n === 1) { arcTypes = ['up']; }
+            if      (n === 1) { arcTypes = ['flat']; }
             else if (n === 2) { arcTypes = ['up', 'down']; }
             else              { arcTypes = ['up', ...Array(n - 2).fill('flat'), 'down']; }
 
@@ -921,7 +918,7 @@
                     gsCtx.save();
                     gsCtx.translate(ld.centers[ci] + shadow2OX, (Array.isArray(ld.baseline) ? ld.baseline[ci] : ld.baseline) + shadow2OY);
                     gsCtx.rotate(rotations[flatIdx]);
-                    gsCtx.font         = `${fontSize}px ${currentFont}`;
+                    gsCtx.font         = `${fontSize}px ${getFontForChar(ld.chars[ci])}`;
                     gsCtx.textBaseline = 'alphabetic';
                     gsCtx.textAlign    = 'center';
                     gsCtx.fillStyle    = SHADOW2_COLOR;
@@ -984,7 +981,7 @@
                     oCtx.save();
                     oCtx.translate(bx, by);
                     oCtx.rotate(rotations[flatIdx]);
-                    oCtx.font         = `${fontSize}px ${currentFont}`;
+                    oCtx.font         = `${fontSize}px ${getFontForChar(ld.chars[ci])}`;
                     oCtx.textBaseline = 'alphabetic';
                     oCtx.textAlign    = 'center';
                     oCtx.strokeText(ld.chars[ci], 0, 0);
@@ -1039,7 +1036,7 @@
                     const tCtx  = temp.getContext('2d');
 
                     // Step 1: グリフのシルエットを黒で描画
-                    tCtx.font         = `${fontSize}px ${currentFont}`;
+                    tCtx.font         = `${fontSize}px ${getFontForChar(ld.chars[ci])}`;
                     tCtx.textBaseline = 'alphabetic';
                     tCtx.textAlign    = 'center';
                     tCtx.fillStyle    = '#000000';
@@ -1076,9 +1073,10 @@
         // ===== メイン画像生成 =====
 
         async function generateCover() {
-            const rawText     = document.getElementById('input-text').value.trim();
+            const rawText     = document.getElementById('input-text').value;
             const versionMode = document.getElementById('version-mode').value;
-            currentFont       = document.getElementById('font-select').value;
+            currentFontEn     = document.getElementById('font-select-en').value;
+            currentFontJa     = document.getElementById('font-select-ja').value;
             const resultImage = document.getElementById('cover-image');
             if (!rawText) return;
 
@@ -1108,7 +1106,8 @@
                 const maxLineW     = CW * TEXT_MAX_WIDTH_PCT;
 
                 // フォントのロードを待機
-                await document.fonts.load(`${CW * FONT_SIZE_START_PCT}px ${currentFont}`);
+                await document.fonts.load(`${CW * FONT_SIZE_START_PCT}px ${currentFontJa}`);
+                await document.fonts.load(`${CW * FONT_SIZE_START_PCT}px ${currentFontEn}`);
 
                 // フォントサイズと行配列を計算
                 const { fontSize, lines, blobFontSize } = computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW);
@@ -1220,8 +1219,6 @@
             const versionModeInput = document.getElementById('version-mode');
             const fontSizeInput    = document.getElementById('text-size');
             const sizeBtns         = document.querySelectorAll('#size-selector .size-btn');
-            const fontAllToggle    = document.getElementById('font-all-toggle');
-            const optgroupOther    = document.getElementById('optgroup-other');
             const customBgInput    = document.getElementById('custom-bg-input');
             const fileLabel        = document.getElementById('file-label');
 
@@ -1277,10 +1274,6 @@
                 });
             });
 
-            // フォント全表示トグル
-            fontAllToggle.addEventListener('change', function() {
-                optgroupOther.style.display = this.checked ? 'block' : 'none';
-            });
 
             // カスタム背景アップロード
             customBgInput.addEventListener('change', function(e) {
@@ -1305,7 +1298,8 @@
                 if (window._genTimeout) clearTimeout(window._genTimeout);
                 window._genTimeout = setTimeout(generateCover, 500);
             });
-            document.getElementById('font-select').addEventListener('change', generateCover);
+            document.getElementById('font-select-en').addEventListener('change', generateCover);
+            document.getElementById('font-select-ja').addEventListener('change', generateCover);
 
             // 初回起動時に自動生成
             if (document.getElementById('input-text').value.trim()) {
@@ -1314,7 +1308,7 @@
         }
 
         initialize();
-    
-    </script>
+
+</script>
 </body>
 </html>
