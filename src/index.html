@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ぽこあジェネレーター</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&family=Hachi+Maru+Pop&family=Kiwi+Maru:wght@500&family=Potta+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'pokoa';
+            src: url('assets/pokoaRegular.woff2') format('woff2'),
+                 url('assets/pokoaRegular.woff') format('woff'),
+                 url('assets/pokoaRegular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Zen Maru Gothic', 'Arial', sans-serif;
+            background-color: #fff0f5;
+            background-image: radial-gradient(#ffc0cb 15%, transparent 16%), radial-gradient(#ffc0cb 15%, transparent 16%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+        .main-title {
+            text-align: center;
+            font-family: 'Potta One', cursive;
+            color: #ff69b4;
+            font-size: 42px;
+            text-shadow: 2px 2px 0px #fff, 4px 4px 0px #ffb6c1;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+        .album-cover-generator {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.2);
+        }
+        .album-cover-generator form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            background: #ffffff;
+            padding: 20px;
+            border: 3px dashed #ffb6c1;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        .input-group label {
+            font-weight: bold;
+            color: #ff69b4;
+            font-size: 14px;
+        }
+        .album-cover-generator input[type="text"],
+        .album-cover-generator select {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ffb6c1;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .album-cover-generator input[type="text"]:focus,
+        .album-cover-generator select:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+        }
+        .album-cover-generator #result {
+            margin-top: 10px;
+        }
+        .album-cover-generator #result img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        button#generate-button {
+            padding: 15px 30px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: #d63384;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button#generate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+        }
+        button#download-button {
+            padding: 15px 30px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: none;
+        }
+        button#download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(161, 140, 209, 0.6);
+        }
+        .toggle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 15px 0;
+            user-select: none;
+        }
+        .toggle-options {
+            display: flex;
+            gap: 5px;
+            background-color: #fff0f5;
+            border-radius: 25px;
+            padding: 5px;
+            box-shadow: inset 0 2px 5px rgba(255, 182, 193, 0.5);
+        }
+        .toggle-option {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff69b4;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .toggle-option.active {
+            background-color: #ff69b4;
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
+        }
+        .toggle-option:hover:not(.active) {
+            background-color: #ffe4e1;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
+        <h1 class="main-title">ぽこあジェネレーター</h1>
+        <div class="album-cover-generator">
+            <div id="result">
+                <img decoding="async" src="" alt="pokoa font and logo generator cover image" id="cover-image" style="max-width: 100%;">
+            </div>
+            <form id="album-cover-form">
+                <div class="input-group">
+                    <label for="input-text">テキスト</label>
+                    <input type="text" id="input-text" required="" placeholder="あなたのテキスト (例: ぽこあ)" value="ぽこあジェネレーター">
+                </div>
+                <div class="input-group">
+                    <label for="font-select">フォント</label>
+                    <select id="font-select">
+                        <option value="'pokoa'">ぽこぴあフォント (オリジナル)</option>
+                        <option value="'Kiwi Maru', serif">Kiwi Maru</option>
+                        <option value="'Potta One', cursive" selected>Potta One</option>
+                        <option value="'Hachi Maru Pop', cursive">Hachi Maru Pop</option>
+                        <option value="'Yusei Magic', sans-serif">Yusei Magic</option>
+                        <option value="'Darumadrop One', cursive">Darumadrop One</option>
+                        <option value="'Zen Maru Gothic', sans-serif">Zen Maru Gothic</option>
+                    </select>
+                </div>
+                <div class="toggle-container">
+                    <div class="toggle-options">
+                        <div class="toggle-option active" id="screenshot-option" data-mode="screenshot">スクリーンショット</div>
+                        <div class="toggle-option" id="sky-option" data-mode="sky">青空</div>
+                        <div class="toggle-option" id="standard-option" data-mode="standard">白</div>
+                        <div class="toggle-option" id="alternate-option" data-mode="alternate">黒</div>
+                    </div>
+                </div>
+                <input type="hidden" id="version-mode" value="screenshot">
+                <div class="button-group">
+                    <button type="button" id="generate-button">生成</button>
+                    <button type="button" id="download-button" style="display: none;">ダウンロード</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // 現在選択中のフォントを保持
+        let currentFont = "'Potta One', cursive";
+
+        // ===== キャッシュ管理 =====
+        // キーと対応する画像のキャッシュを保持するオブジェクト
+        const imageCache = {};
+
+        // 指定URLの画像をPromiseで読み込む
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload  = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        // 同じ画像を何度もロードしないよう、キーでキャッシュして返す
+        async function loadImageCached(key, url) {
+            if (!imageCache[key]) {
+                imageCache[key] = await loadImage(url);
+            }
+            return imageCache[key];
+        }
+
+        // 生成済み画像のDataURL（ダウンロード用）
+        let generatedImageUrl = '';
+ // ===== CONFIGURATION SETTINGS =====
+ // Canvas dimensions
+ const CANVAS_WIDTH  = 1200;
+ const CANVAS_HEIGHT = 1200;
+ // Background colors
+ const BG_COLOR_STANDARD  = '#ffffff';   // Clean white
+ const BG_COLOR_ALTERNATE = '#111111';   // Near-black
+ // Color texture image URLs (one per letter fill, randomly assigned)
+ const COLOR_IMAGE_URLS = [
+ 'assets/Pokoa_color_purple3.png',
+ 'assets/Pokoa_color_blue3.png',
+ 'assets/Pokoa_color_green3.png',
+ 'assets/Pokoa_color_orange3.png',
+ 'assets/Pokoa_color_amber3.png',
+ ];
+ // Background image URLs for the 'screenshot' and 'sky' toggle modes
+ const BG_SCREENSHOT_URL = 'assets/pokoa-screenshot-bg.jpg';
+ const BG_SKY_URL        = 'assets/pokoa-sky-bg.jpg';
+ // Font size as % of canvas width (starting point before auto-scaling).
+ // Text wraps to new lines BEFORE the font shrinks — the font only reduces
+ // if a single unbreakable word is too wide to fit on one line.
+ const FONT_SIZE_START_PCT  = 0.16;
+ // Maximum width a single line of text may occupy, as % of canvas width.
+ // Words wrap to the next line before this limit is breached.
+ const TEXT_MAX_WIDTH_PCT   = 0.78;
+ // Text block vertically centered at this % of canvas height
+ const TEXT_CENTER_Y_PCT    = 0.52;
+ // Line height multiplier — controls spacing between wrapped lines
+ // (1.0 = tight / touching, 1.2 = comfortable gap between lines)
+ const LINE_HEIGHT_MULTIPLIER = 0.90;
+ // Extra gap between individual letters as fraction of canvas width
+ const LETTER_SPACING_PCT   = 0.004;
+ // Maximum random tilt per letter (degrees)
+ const MAX_ROTATION_DEG     = 5;
+ // White outline width as fraction of font size
+ const OUTLINE_WIDTH_FACTOR = 0.14;
+ // Color image size as fraction of font size (scales with text when font shrinks)
+ const IMG_SIZE_FACTOR = 1.5;
+ // Characters whose counters (interior holes) need a white fill circle.
+ // Add or remove characters here to match the specific font's glyph shapes.
+ const HOLE_FILL_CHARS = new Set(['o','O','p','P','b','B','d','D','q','Q',
+ 'a','A','e','g','G','R','0','6','8','9']);
+ // Radius of the hole-fill circle as fraction of font size
+ const HOLE_CIRCLE_RADIUS_FACTOR = 0.18;
+ // Vertical center of the circle: fraction of ascent measured up from baseline
+ // 0.52 places it roughly in the middle of most rounded bowls
+ const HOLE_CIRCLE_Y_FACTOR = 0.47;
+ // Outline shadow settings
+ const SHADOW_ALPHA         = 0.3;   // Drop shadow opacity
+ const SHADOW_BLUR_PCT      = 0.012;  // Shadow blur as fraction of canvas width
+ const SHADOW_OX_PCT        = 0.005;  // Shadow X offset as fraction of canvas width
+ const SHADOW_OY_PCT        = 0.007;  // Shadow Y offset as fraction of canvas height
+ // ── SVG blob shape settings ──────────────────────────────────────────────
+ // The blob width is driven by the widest rendered text line:
+ //   blobWidth = widestLineWidth / SHAPE_TEXT_COVERAGE
+ // e.g. 0.78 means text spans 78% of the blob width (blob is wider than text).
+ // Increase for a tighter fit; decrease for more breathing room on the sides.
+ const SHAPE_TEXT_COVERAGE  = 1.1;
+ // Minimum blob width as fraction of canvas width.
+ // The blob will never be drawn smaller than this, even for very short words.
+ const SHAPE_MIN_WIDTH_PCT  = 0.50;
+ // Fill color of the blob shape
+ const SHAPE_COLOR          = '#b4da4b';
+ // Vertical growth factor for multi-line text.
+ // When text wraps, the blob grows taller. This controls how much extra height
+ // is added per additional line beyond the first. 1.0 = exactly one lineHeight
+ // of extra blob height per extra line; 1.3 = 30% more padding per extra line.
+ const SHAPE_VERT_SCALE     = 1.1;
+ // SVG path data — derived from the Pokoa blob shape (viewBox 0 0 843.6 663.24).
+ // Replace SHAPE_SVG_W / SHAPE_SVG_H if you swap in a different path.
+ const SHAPE_SVG_PATH = 'M43.6,110.73c49.91-36.03,83.34,40.05,125.91,26.47,9.33-4.41,17.97-13.83,25.39-21.74,29.03-32.23,28.66-63.54,75.89-90.7,58.71-40.07,94.13,1.93,155.9,4.97,17.79,1.91,32.88-.53,50.88-5.32,24.72-6.44,51.2-11.71,78.61-7.74,61.44,12.71,85.94,97.58,113.81,170.13,2.21,5.07,4.97,9.34,8.59,12.84,9.27,9.55,23.46,11.51,36.11,9.42,27.13-3.73,59.8-10.22,84.76,6.8,41.14,30.76,17.83,108.53,4.97,166.84-1.77,7.69-3.4,16.1-3.31,23.88-.04,35.69,27.93,57.43,33.06,90.25,2.92,17.99-4.22,37.79-16.86,50.71-26.62,27.4-57.68,36.87-116,42.45-16,1.23-31.52,2.31-46.2,8.76-16.67,7.25-33.44,19.56-48.22,29.6-19.5,13.07-33.45,23.59-53.95,25.97-35.47,3.05-70.91-8.01-113.62-18.77-5.56-1.19-11.45-1.69-17.26-1.57-44.36-.98-87.23,26.1-125.94,21.1-5.72-.87-11.4-1.69-17.03-2.54-24.99-3.24-59.22-32.83-82.4-53.84-9.2-8.02-18.67-11.93-30.48-13.63-51.91-7.67-100.06-14.76-135.71-33.98-13.39-7.55-22.66-23-21.67-38.78.21-5.34,1.39-10.56,2.96-15.61,5.34-17.09,15.34-36.18,23.47-53.41,10.37-20.76,16.75-43.29,17.12-66.55.74-34.16-2.97-70.03-10.68-99.09-17.61-58.55-40.14-135.67,1.73-166.8l.17-.12Z';
+ // Natural dimensions of the SVG viewBox — keep in sync with the path above
+ const SHAPE_SVG_W          = 843.6;
+ const SHAPE_SVG_H          = 663.24;
+ // Texture image rendered inside the blob shape (clipped to path).
+ // The image is drawn at full canvas size so it fills the blob naturally.
+ const SHAPE_TEXTURE_URL    = 'assets/pokoa-ditto-green-texture.png';
+ // Width of the white outline stroke drawn BEHIND the texture-filled blob,
+ // expressed as a fraction of canvas width.  This stroke also receives the
+ // same drop shadow as the text outline layer for visual consistency.
+ const SHAPE_OUTLINE_WIDTH_PCT = 0.028;
+ // ── End SVG blob shape settings ──────────────────────────────────────────
+ // ── Special uppercase-O settings ────────────────────────────────────────
+ // The uppercase O always uses this fixed image fill instead of a random color.
+ const SPECIAL_O_IMAGE_URL = 'assets/pokoa-O-fill.png';
+ // Sentinel value stored in colorAssignments to flag an uppercase-O character.
+ // Must not collide with valid indices (0…n-1) or the space sentinel (-1).
+ const SPECIAL_O_SENTINEL = -2;
+ // ── End special uppercase-O settings ────────────────────────────────────
+ // ── Blob-clipped green text shadow settings ──────────────────────────────
+ // A secondary drop shadow rendered in dark green, clipped to the blob shape
+ // so it only appears where text sits on top of the textured background.
+ // SHADOW2_OX_PCT / SHADOW2_OY_PCT control its depth independently of the
+ // main black shadow (SHADOW_OX_PCT / SHADOW_OY_PCT).
+ const SHADOW2_COLOR    = '#1a5c00';   // Dark green
+ const SHADOW2_ALPHA    = 0.6;        // Opacity of the shadow layer
+ const SHADOW2_BLUR_PCT = 0.013;      // Blur as fraction of font size (scales with text)
+ const SHADOW2_OX_PCT   = 0.088;      // X offset as fraction of font size (scales with text)
+ const SHADOW2_OY_PCT   = 0.075;      // Y offset as fraction of font size (scales with text)
+ // ── End blob-clipped green text shadow settings ──────────────────────────
+        // ===== END CONFIGURATION SETTINGS =====
+
+        // ===== テキスト処理 =====
+
+        // 全文字にランダムな色インデックスを割り当てる（隣接文字が同色にならないよう制御）
+        function assignColors(chars) {
+            const n = COLOR_IMAGE_URLS.length;
+            const assignments = [];
+            let lastIdx = -1;
+            for (const ch of chars) {
+                if (ch === ' ') { assignments.push(-1); continue; }
+                let idx;
+                do { idx = Math.floor(Math.random() * n); } while (idx === lastIdx);
+                lastIdx = idx;
+                assignments.push(idx);
+            }
+            return assignments;
+        }
+
+        // 入力テキストをmaxLineW以内に収まる行に分割する
+        // 単語は分割しない——フォントサイズは単語が1行に収まらない場合のみ縮小する
+        function buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing) {
+            ctx.font = `${fontSize}px ${currentFont}`;
+            const words = inputText.split(' ');
+            const lines = [];
+            let cur = '';
+            for (const word of words) {
+                const test      = cur ? cur + ' ' + word : word;
+                const testChars = test.split('');
+                const testW     = testChars.reduce((s, c) => s + ctx.measureText(c).width, 0)
+                                + extraSpacing * Math.max(0, testChars.length - 1);
+                if (testW > maxLineW && cur) {
+                    lines.push(cur);
+                    cur = word;
+                } else {
+                    cur = test;
+                }
+            }
+            if (cur) lines.push(cur);
+            return lines;
+        }
+
+        // ===== フォントサイズ計算 =====
+
+        // 現在のフォントサイズで最長単語の幅を計算する
+        function measureLongestWordWidth(words, ctx, extraSpacing) {
+            return Math.max(...words.map(w => {
+                const wChars = w.split('');
+                return wChars.reduce((s, c) => s + ctx.measureText(c).width, 0)
+                     + extraSpacing * Math.max(0, wChars.length - 1);
+            }));
+        }
+
+        // 最長単語がmaxLineWに収まるまでフォントサイズを縮小する
+        function shrinkFontToFitWidth(ctx, words, fontSize, maxLineW, extraSpacing) {
+            ctx.font = `${fontSize}px ${currentFont}`;
+            let longestWordW = measureLongestWordWidth(words, ctx, extraSpacing);
+            while (longestWordW > maxLineW && fontSize > 10) {
+                fontSize    *= 0.95;
+                ctx.font     = `${fontSize}px ${currentFont}`;
+                longestWordW = measureLongestWordWidth(words, ctx, extraSpacing);
+            }
+            return fontSize;
+        }
+
+        // フォントサイズを決定する（横方向→縦方向の順で収まるまで縮小）
+        function computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW) {
+            const words      = inputText.split(' ');
+            let   fontSize   = CW * FONT_SIZE_START_PCT;
+            const MARGIN_PCT = 0.04; // キャンバス上下の余白（CHの割合）
+
+            // 横方向：最長単語がmaxLineWに収まるまで縮小
+            fontSize = shrinkFontToFitWidth(ctx, words, fontSize, maxLineW, extraSpacing);
+            let lines = buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing);
+
+            // 縦方向：ブロブ＋テキストブロックがキャンバスに収まるまで縮小
+            let fitsVertically = false;
+            while (!fitsVertically && fontSize > 10) {
+                ctx.font = `${fontSize}px ${currentFont}`;
+                const m   = ctx.measureText('Hg');
+                const lh  = fontSize * LINE_HEIGHT_MULTIPLIER;
+                const widestLineW = Math.max(...lines.map(line => {
+                    const lc = line.split('');
+                    return lc.reduce((s, c) => s + ctx.measureText(c).width, 0)
+                         + extraSpacing * Math.max(0, lc.length - 1);
+                }));
+                const blobW   = Math.max(CW * SHAPE_MIN_WIDTH_PCT, widestLineW / SHAPE_TEXT_COVERAGE);
+                const blobH   = blobW * (SHAPE_SVG_H / SHAPE_SVG_W)
+                              + Math.max(0, lines.length - 3) * lh * SHAPE_VERT_SCALE;
+                const blobCY  = CH * TEXT_CENTER_Y_PCT;
+                const margin  = CH * MARGIN_PCT;
+                if ((blobCY - blobH / 2) >= margin && (blobCY + blobH / 2) <= CH - margin) {
+                    fitsVertically = true;
+                } else {
+                    fontSize = shrinkFontToFitWidth(ctx, words, fontSize * 0.95, maxLineW, extraSpacing);
+                    lines    = buildLines(inputText, ctx, fontSize, maxLineW, extraSpacing);
+                }
+            }
+            return { fontSize, lines };
+        }
+
+        // ===== レイアウト計算 =====
+
+        // 文字ごとの描画位置・回転・色割り当てを一括計算する
+        function computeLayout(ctx, lines, fontSize, CW, CH, extraSpacing) {
+            ctx.font = `${fontSize}px ${currentFont}`;
+            const metrics    = ctx.measureText('Hg');
+            const ascent     = metrics.actualBoundingBoxAscent;
+            const descent    = metrics.actualBoundingBoxDescent;
+            const glyphH     = ascent + descent;
+            const lineHeight = fontSize * LINE_HEIGHT_MULTIPLIER;
+            const totalTextH = lines.length === 1
+                ? glyphH
+                : (lines.length - 1) * lineHeight + glyphH;
+            const firstBaselineY = CH * TEXT_CENTER_Y_PCT - totalTextH / 2 + ascent;
+
+            // 各行の文字幅・中心X座標・ベースラインYを計算
+            const lineData = lines.map((line, li) => {
+                ctx.font = `${fontSize}px ${currentFont}`;
+                const lChars  = line.split('');
+                const cWidths = lChars.map(c => ctx.measureText(c).width);
+                const lineW   = cWidths.reduce((s, w) => s + w, 0)
+                              + extraSpacing * Math.max(0, lChars.length - 1);
+                const centers = [];
+                let x = (CW - lineW) / 2;
+                for (let i = 0; i < lChars.length; i++) {
+                    centers.push(x + cWidths[i] / 2);
+                    x += cWidths[i] + extraSpacing;
+                }
+                return { chars: lChars, widths: cWidths, lineW, centers, baseline: firstBaselineY + li * lineHeight };
+            });
+
+            const widestLineW = Math.max(...lineData.map(ld => ld.lineW));
+
+            // 全文字をフラット化してインデックスオフセットを構築
+            const lineOffsets = [];
+            let offset = 0;
+            for (const ld of lineData) { lineOffsets.push(offset); offset += ld.chars.length; }
+
+            const allChars         = lineData.flatMap(ld => ld.chars);
+            const rotations        = allChars.map(() => (Math.random() * 2 - 1) * MAX_ROTATION_DEG * Math.PI / 180);
+            const colorAssignments = assignColors(allChars);
+
+            // 大文字Oは回転なし・専用画像（SPECIAL_O_SENTINEL）を使う
+            for (let i = 0; i < allChars.length; i++) {
+                if (allChars[i] === 'O') { rotations[i] = 0; colorAssignments[i] = SPECIAL_O_SENTINEL; }
+            }
+
+            return { lineData, lineOffsets, widestLineW, ascent, descent, lineHeight, firstBaselineY, allChars, rotations, colorAssignments };
+        }
+
+        // ===== 描画関数群 =====
+
+        // 背景を描画する（スクリーンショット・空・単色の3モード対応）
+        function drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky) {
+            if (versionMode === 'screenshot' || versionMode === 'sky') {
+                const img   = versionMode === 'screenshot' ? bgScreenshot : bgSky;
+                const scale = Math.max(CW / img.naturalWidth, CH / img.naturalHeight);
+                const dw    = img.naturalWidth  * scale;
+                const dh    = img.naturalHeight * scale;
+                ctx.drawImage(img, (CW - dw) / 2, (CH - dh) / 2, dw, dh);
+            } else {
+                ctx.fillStyle = versionMode === 'standard' ? BG_COLOR_STANDARD : BG_COLOR_ALTERNATE;
+                ctx.fillRect(0, 0, CW, CH);
+            }
+        }
+
+        // ブロブ形状を描画する（PASS 0a: 白アウトライン / 0b: テクスチャ / 0c: グリーンシャドウ）
+        function drawBlob(ctx, layout, shapeTexture, CW, CH, shadowBlur, shadowOX, shadowOY, shadow2OX, shadow2OY) {
+            const { lineData, lineOffsets, rotations, widestLineW, lineHeight, firstBaselineY, ascent, descent, fontSize } = layout;
+            const lines = lineData.map(ld => ld.chars.join(''));
+
+            // ブロブのスケール・位置計算
+            const blobTargetW = Math.max(CW * SHAPE_MIN_WIDTH_PCT, widestLineW / SHAPE_TEXT_COVERAGE);
+            const blobTargetH = blobTargetW * (SHAPE_SVG_H / SHAPE_SVG_W)
+                              + Math.max(0, lines.length - 3) * lineHeight * SHAPE_VERT_SCALE;
+            const blobScaleX  = blobTargetW / SHAPE_SVG_W;
+            const blobScaleY  = blobTargetH / SHAPE_SVG_H;
+            const textBlockCenterY = ((firstBaselineY - ascent) + (lineData[lineData.length - 1].baseline + descent)) / 2;
+            const blobTranslateX   = CW / 2 - (SHAPE_SVG_W / 2) * blobScaleX;
+            const blobTranslateY   = textBlockCenterY - (SHAPE_SVG_H / 2) * blobScaleY;
+            const blobPath         = new Path2D(SHAPE_SVG_PATH);
+
+            // SVG空間でのラインの太さ（画面上のピクセル幅が一定になるよう逆スケール）
+            const lineWidthSVG = (CW * SHAPE_OUTLINE_WIDTH_PCT) / Math.max(blobScaleX, blobScaleY);
+
+            // PASS 0a: 白いアウトラインストローク（最背面レイヤー）
+            const blobStrokeCanvas  = document.createElement('canvas');
+            blobStrokeCanvas.width  = CW;
+            blobStrokeCanvas.height = CH;
+            const bsCtx = blobStrokeCanvas.getContext('2d');
+            bsCtx.save();
+            bsCtx.translate(blobTranslateX, blobTranslateY);
+            bsCtx.scale(blobScaleX, blobScaleY);
+            bsCtx.lineWidth   = lineWidthSVG;
+            bsCtx.strokeStyle = '#ffffff';
+            bsCtx.lineJoin    = 'round';
+            bsCtx.stroke(blobPath);
+            bsCtx.restore();
+            // 1回目：影あり、2回目：影なしで白ストロークが影の上に乗る
+            ctx.save();
+            ctx.shadowColor   = `rgba(0,0,0,${SHADOW_ALPHA})`;
+            ctx.shadowBlur    = shadowBlur;
+            ctx.shadowOffsetX = shadowOX;
+            ctx.shadowOffsetY = shadowOY;
+            ctx.drawImage(blobStrokeCanvas, 0, 0);
+            ctx.restore();
+            ctx.drawImage(blobStrokeCanvas, 0, 0);
+
+            // PASS 0b: テクスチャ画像をブロブ形状にクリップして描画
+            ctx.save();
+            ctx.translate(blobTranslateX, blobTranslateY);
+            ctx.scale(blobScaleX, blobScaleY);
+            ctx.clip(blobPath);
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // テクスチャをキャンバス全体に描画してからクリップ
+            ctx.drawImage(shapeTexture, 0, 0, CW, CH);
+            ctx.restore();
+
+            // PASS 0c: ブロブ全体にクリップされたダークグリーンのテキストシャドウ
+            const greenShadowCanvas  = document.createElement('canvas');
+            greenShadowCanvas.width  = CW;
+            greenShadowCanvas.height = CH;
+            const gsCtx = greenShadowCanvas.getContext('2d');
+            for (let li = 0; li < lineData.length; li++) {
+                const ld = lineData[li];
+                for (let ci = 0; ci < ld.chars.length; ci++) {
+                    if (ld.chars[ci] === ' ') continue;
+                    const flatIdx = lineOffsets[li] + ci;
+                    gsCtx.save();
+                    gsCtx.translate(ld.centers[ci] + shadow2OX, ld.baseline + shadow2OY);
+                    gsCtx.rotate(rotations[flatIdx]);
+                    gsCtx.font         = `${fontSize}px ${currentFont}`;
+                    gsCtx.textBaseline = 'alphabetic';
+                    gsCtx.textAlign    = 'center';
+                    gsCtx.fillStyle    = SHADOW2_COLOR;
+                    gsCtx.fillText(ld.chars[ci], 0, 0);
+                    gsCtx.restore();
+                }
+            }
+            // ブロブマスク（fill + stroke = ブロブ全体）を作成して destination-in でクリップ
+            const blobMaskCanvas  = document.createElement('canvas');
+            blobMaskCanvas.width  = CW;
+            blobMaskCanvas.height = CH;
+            const bmCtx = blobMaskCanvas.getContext('2d');
+            bmCtx.save();
+            bmCtx.translate(blobTranslateX, blobTranslateY);
+            bmCtx.scale(blobScaleX, blobScaleY);
+            bmCtx.lineWidth   = lineWidthSVG;
+            bmCtx.lineJoin    = 'round';
+            bmCtx.fillStyle   = '#000000';
+            bmCtx.strokeStyle = '#000000';
+            bmCtx.fill(blobPath);
+            bmCtx.stroke(blobPath);
+            bmCtx.restore();
+
+            const clippedGreenCanvas  = document.createElement('canvas');
+            clippedGreenCanvas.width  = CW;
+            clippedGreenCanvas.height = CH;
+            const cgCtx = clippedGreenCanvas.getContext('2d');
+            cgCtx.drawImage(greenShadowCanvas, 0, 0);
+            cgCtx.globalCompositeOperation = 'destination-in';
+            cgCtx.drawImage(blobMaskCanvas, 0, 0);
+
+            ctx.save();
+            ctx.globalAlpha = SHADOW2_ALPHA;
+            ctx.filter      = `blur(${fontSize * SHADOW2_BLUR_PCT}px)`;
+            ctx.drawImage(clippedGreenCanvas, 0, 0);
+            ctx.restore();
+            ctx.filter      = 'none';
+            ctx.globalAlpha = 1;
+        }
+
+        // 文字の白いアウトラインを一枚のオフスクリーンキャンバスに描いてから転写する（PASS 1）
+        // オフスクリーン合成により隣接文字のストロークが重なっても単一の白い形になる
+        function drawTextOutline(ctx, lineData, lineOffsets, rotations, fontSize, CW, CH, outlineWidth, shadowBlur, shadowOX, shadowOY) {
+            const outlineCanvas  = document.createElement('canvas');
+            outlineCanvas.width  = CW;
+            outlineCanvas.height = CH;
+            const oCtx = outlineCanvas.getContext('2d');
+            oCtx.strokeStyle = '#ffffff';
+            oCtx.lineWidth   = outlineWidth;
+            oCtx.lineJoin    = 'miter';
+            oCtx.miterLimit  = 10;
+            for (let li = 0; li < lineData.length; li++) {
+                const ld = lineData[li];
+                for (let ci = 0; ci < ld.chars.length; ci++) {
+                    if (ld.chars[ci] === ' ') continue;
+                    const flatIdx = lineOffsets[li] + ci;
+                    oCtx.save();
+                    oCtx.translate(ld.centers[ci], ld.baseline);
+                    oCtx.rotate(rotations[flatIdx]);
+                    oCtx.font         = `${fontSize}px ${currentFont}`;
+                    oCtx.textBaseline = 'alphabetic';
+                    oCtx.textAlign    = 'center';
+                    oCtx.strokeText(ld.chars[ci], 0, 0);
+                    oCtx.restore();
+                }
+            }
+            // 1回目：影あり、2回目：影なしでアウトラインが影の上に乗る
+            ctx.save();
+            ctx.shadowColor   = `rgba(0,0,0,${SHADOW_ALPHA})`;
+            ctx.shadowBlur    = shadowBlur;
+            ctx.shadowOffsetX = shadowOX;
+            ctx.shadowOffsetY = shadowOY;
+            ctx.drawImage(outlineCanvas, 0, 0);
+            ctx.restore();
+            ctx.drawImage(outlineCanvas, 0, 0);
+        }
+
+        // 穴のある文字（o, p, b など）の内側に白い円を描いて背景が透けるのを防ぐ（PASS 1.5）
+        function drawHoleFills(ctx, lineData, lineOffsets, rotations, ascent, holeRadius) {
+            for (let li = 0; li < lineData.length; li++) {
+                const ld = lineData[li];
+                for (let ci = 0; ci < ld.chars.length; ci++) {
+                    if (!HOLE_FILL_CHARS.has(ld.chars[ci])) continue;
+                    const flatIdx  = lineOffsets[li] + ci;
+                    const bowlOffY = -(ascent * HOLE_CIRCLE_Y_FACTOR);
+                    ctx.save();
+                    ctx.translate(ld.centers[ci], ld.baseline);
+                    ctx.rotate(rotations[flatIdx]);
+                    ctx.beginPath();
+                    ctx.arc(0, bowlOffY, holeRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
+        // カラーテクスチャ画像をグリフシルエットにクリップして文字を描画する（PASS 2）
+        function drawColoredLetters(ctx, lineData, lineOffsets, rotations, colorAssignments, colorImages, specialOImage, fontSize, tempSize, tempBaseline) {
+            for (let li = 0; li < lineData.length; li++) {
+                const ld = lineData[li];
+                for (let ci = 0; ci < ld.chars.length; ci++) {
+                    const flatIdx  = lineOffsets[li] + ci;
+                    const colorIdx = colorAssignments[flatIdx];
+                    if (ld.chars[ci] === ' ' || colorIdx === -1) continue;
+
+                    const fillImage = (colorIdx === SPECIAL_O_SENTINEL) ? specialOImage : colorImages[colorIdx];
+                    const temp  = document.createElement('canvas');
+                    temp.width  = tempSize;
+                    temp.height = tempSize;
+                    const tCtx  = temp.getContext('2d');
+
+                    // Step 1: グリフのシルエットを黒で描画
+                    tCtx.font         = `${fontSize}px ${currentFont}`;
+                    tCtx.textBaseline = 'alphabetic';
+                    tCtx.textAlign    = 'center';
+                    tCtx.fillStyle    = '#000000';
+                    tCtx.fillText(ld.chars[ci], tempSize / 2, tempBaseline);
+
+                    // Step 2: 選択した画像をシルエットにクリップ
+                    let imgSize, imgX, imgY;
+                    if (colorIdx === SPECIAL_O_SENTINEL) {
+                        // 大文字Oはグリフ自身のバウンディングボックスに合わせて正確に配置
+                        const oMetrics = tCtx.measureText('O');
+                        const oCenterY = tempBaseline - (oMetrics.actualBoundingBoxAscent - oMetrics.actualBoundingBoxDescent) / 2;
+                        imgSize = Math.round(ld.widths[ci]);
+                        imgX    = tempSize / 2 - imgSize / 2;
+                        imgY    = oCenterY - imgSize / 2;
+                    } else {
+                        imgSize = Math.round(fontSize * IMG_SIZE_FACTOR);
+                        imgX    = tempSize / 2 - imgSize / 2;
+                        imgY    = tempBaseline - imgSize / 2;
+                    }
+                    tCtx.globalCompositeOperation = 'source-in';
+                    tCtx.drawImage(fillImage, imgX, imgY, imgSize, imgSize);
+
+                    // Step 3: メインキャンバスに回転させてスタンプ
+                    ctx.save();
+                    ctx.translate(ld.centers[ci], ld.baseline);
+                    ctx.rotate(rotations[flatIdx]);
+                    ctx.drawImage(temp, -tempSize / 2, -tempBaseline);
+                    ctx.restore();
+                }
+            }
+        }
+
+        // ===== メイン画像生成 =====
+
+        async function generateCover() {
+            const rawText     = document.getElementById('input-text').value.trim();
+            const versionMode = document.getElementById('version-mode').value;
+            currentFont       = document.getElementById('font-select').value;
+            const resultImage = document.getElementById('cover-image');
+            if (!rawText) return;
+
+            // 大文字I・Oのみ保持し、他は小文字に正規化
+            const inputText = rawText.split('').map(c => (c === 'I' || c === 'O') ? c : c.toLowerCase()).join('');
+
+            const canvas  = document.createElement('canvas');
+            canvas.width  = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+            const ctx = canvas.getContext('2d');
+            const CW  = CANVAS_WIDTH;
+            const CH  = CANVAS_HEIGHT;
+
+            try {
+                // 全テクスチャ・背景画像を並行キャッシュロード
+                const colorImages = await Promise.all(COLOR_IMAGE_URLS.map((url, i) => loadImageCached(`color_${i}`, url)));
+                const [shapeTexture, specialOImage, bgScreenshot, bgSky] = await Promise.all([
+                    loadImageCached('shapeTexture',  SHAPE_TEXTURE_URL),
+                    loadImageCached('specialO',      SPECIAL_O_IMAGE_URL),
+                    loadImageCached('bgScreenshot',  BG_SCREENSHOT_URL),
+                    loadImageCached('bgSky',         BG_SKY_URL),
+                ]);
+
+                const extraSpacing = CW * LETTER_SPACING_PCT;
+                const maxLineW     = CW * TEXT_MAX_WIDTH_PCT;
+
+                // フォントのロードを待機
+                await document.fonts.load(`${CW * FONT_SIZE_START_PCT}px ${currentFont}`);
+
+                // フォントサイズと行配列を計算
+                const { fontSize, lines } = computeFontSize(ctx, inputText, CW, CH, extraSpacing, maxLineW);
+
+                // レイアウト（文字位置・回転・色割り当て）を計算
+                const layout = computeLayout(ctx, lines, fontSize, CW, CH, extraSpacing);
+                const { lineData, lineOffsets, ascent, rotations, colorAssignments } = layout;
+
+                // 描画で共通して使う定数
+                const outlineWidth = fontSize * OUTLINE_WIDTH_FACTOR;
+                const shadowBlur   = CW * SHADOW_BLUR_PCT;
+                const shadowOX     = CW * SHADOW_OX_PCT;
+                const shadowOY     = CH * SHADOW_OY_PCT;
+                const shadow2OX    = fontSize * SHADOW2_OX_PCT;
+                const shadow2OY    = fontSize * SHADOW2_OY_PCT;
+                const holeRadius   = fontSize * HOLE_CIRCLE_RADIUS_FACTOR;
+                const tempSize     = Math.ceil(fontSize * 2.6);
+                const tempBaseline = Math.ceil(tempSize * 0.65);
+
+                // --- 背景 ---
+                drawBackground(ctx, versionMode, CW, CH, bgScreenshot, bgSky);
+
+                // --- PASS 0: ブロブ形状（アウトライン・テクスチャ・グリーンシャドウ）---
+                drawBlob(ctx, { ...layout, fontSize }, shapeTexture, CW, CH, shadowBlur, shadowOX, shadowOY, shadow2OX, shadow2OY);
+
+                // --- PASS 1: 文字の白いアウトライン ---
+                drawTextOutline(ctx, lineData, lineOffsets, rotations, fontSize, CW, CH, outlineWidth, shadowBlur, shadowOX, shadowOY);
+
+                // --- PASS 1.5: 穴埋め白円（o, p, b, d など）---
+                drawHoleFills(ctx, lineData, lineOffsets, rotations, ascent, holeRadius);
+
+                // --- PASS 2: カラーテクスチャ文字 ---
+                drawColoredLetters(ctx, lineData, lineOffsets, rotations, colorAssignments, colorImages, specialOImage, fontSize, tempSize, tempBaseline);
+
+                // --- 出力 ---
+                generatedImageUrl = canvas.toDataURL('image/jpeg', 0.92);
+                resultImage.src   = generatedImageUrl;
+                document.getElementById('download-button').style.display = 'inline-block';
+
+            } catch (error) {
+                console.error('カバー画像の生成に失敗しました:', error);
+                alert('Error generating cover. Please try again.');
+            }
+        }
+
+        // ===== ダウンロード =====
+
+        async function downloadCover() {
+            if (!generatedImageUrl) {
+                alert('Please generate a cover first.');
+                return;
+            }
+            try {
+                const inputText = document.getElementById('input-text').value.trim() || 'ぽこあジェネレーター';
+                const now = new Date();
+                const yy = String(now.getFullYear());
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                const hh = String(now.getHours()).padStart(2, '0');
+                const nn = String(now.getMinutes()).padStart(2, '0');
+                const ss = String(now.getSeconds()).padStart(2, '0');
+                const timestamp = `${yy}${mm}${dd}_${hh}${nn}${ss}`;
+                const filename = `${timestamp}_${inputText}.jpg`;
+
+                const response = await fetch(generatedImageUrl);
+                const blob     = await response.blob();
+                const url      = window.URL.createObjectURL(blob);
+                const link     = document.createElement('a');
+                link.href      = url;
+                link.download  = filename;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('ダウンロードに失敗しました:', error);
+                alert('Download failed. Please try right-clicking the image and selecting "Save image as..."');
+            }
+        }
+
+        // ===== 初期化 =====
+
+        function initialize() {
+            const toggleOptions    = document.querySelectorAll('.toggle-option');
+            const versionModeInput = document.getElementById('version-mode');
+
+            // モード切替トグル：選択時に active クラスを付け替え、入力があれば即時生成
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    versionModeInput.value = this.getAttribute('data-mode');
+                    if (document.getElementById('input-text').value.trim()) {
+                        generateCover();
+                    }
+                });
+            });
+
+            document.getElementById('generate-button').addEventListener('click', generateCover);
+            document.getElementById('download-button').addEventListener('click', downloadCover);
+            
+            // 初回起動時に自動生成
+            if (document.getElementById('input-text').value.trim()) {
+                setTimeout(generateCover, 100);
+            }
+        }
+
+        initialize();
+    
+    </script>
+</body>
+</html>
